@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../components/Button';
 import '../styles/Auth.css';
+import logo from '../assets/logo.png';
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', senha: '' });
@@ -18,19 +19,33 @@ const Login = () => {
     if (!email || !senha) {
       setError('Preencha todos os campos');
     } else {
-      // Implementar ação de login (ex: API)
       alert('Login realizado com sucesso!');
-      // Redirecionar para home ou dashboard conforme necessário
     }
   }
 
   return (
-    <div className="auth-bg">
+    <div className="auth-container">
+      <div className="logo-card">
+        <img src={logo} alt="RecicleAqui Logo" />
+      </div>
       <div className="form-card">
         <h2>Login</h2>
         <form onSubmit={handleSubmit}>
-          <input name="email" type="email" placeholder="Email" value={email} onChange={handleChange} autoComplete="off" />
-          <input name="senha" type="password" placeholder="Senha" value={senha} onChange={handleChange} />
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={handleChange}
+            autoComplete="off"
+          />
+          <input
+            name="senha"
+            type="password"
+            placeholder="Senha"
+            value={senha}
+            onChange={handleChange}
+          />
           {error && <div className="error-message">{error}</div>}
           <Button label="Entrar" variant="primary" type="submit" />
         </form>

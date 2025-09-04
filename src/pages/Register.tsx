@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import PasswordStrengthBar from '../components/PasswordStrengthBar';
 import Button from '../components/Button';
 import '../styles/Auth.css';
+import logo from '../assets/logo.png';
 
 function validatePassword(pw) {
   return (
@@ -32,22 +33,49 @@ const Register = () => {
     } else if (!validatePassword(senha)) {
       setError('Senha fraca: mínimo 8 caracteres, um maiúsculo, um número, um especial');
     } else {
-      // Implementar ação de registro (ex: API)
       alert('Cadastro realizado com sucesso!');
-      // Redirecionar para login (exemplo nesse código, use navigate se quiser)
     }
   }
 
   return (
-    <div className="auth-bg">
-      <div className="form-card">
+    <div className="auth-container">
+      <div className="logo-card logo-card--register">
+        <img src={logo} alt="RecicleAqui Logo" />
+      </div>
+      <div className="form-card form-card--register">
         <h2>Cadastro</h2>
         <form onSubmit={handleSubmit}>
-          <input name="nome" type="text" placeholder="Nome completo" value={nome} onChange={handleChange} autoComplete="off" />
-          <input name="email" type="email" placeholder="Email" value={email} onChange={handleChange} autoComplete="off" />
-          <input name="senha" type="password" placeholder="Senha" value={senha} onChange={handleChange} />
+          <input
+            name="nome"
+            type="text"
+            placeholder="Nome completo"
+            value={nome}
+            onChange={handleChange}
+            autoComplete="off"
+          />
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={handleChange}
+            autoComplete="off"
+          />
+          <input
+            name="senha"
+            type="password"
+            placeholder="Senha"
+            value={senha}
+            onChange={handleChange}
+          />
           <PasswordStrengthBar password={senha} />
-          <input name="confirmar" type="password" placeholder="Confirmar senha" value={confirmar} onChange={handleChange} />
+          <input
+            name="confirmar"
+            type="password"
+            placeholder="Confirmar senha"
+            value={confirmar}
+            onChange={handleChange}
+          />
           {error && <div className="error-message">{error}</div>}
           <Button label="Cadastrar" variant="primary" type="submit" />
         </form>

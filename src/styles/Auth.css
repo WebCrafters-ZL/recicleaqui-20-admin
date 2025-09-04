@@ -1,54 +1,108 @@
-.auth-bg {
+.auth-container {
   min-height: 100vh;
   width: 100vw;
-  background: linear-gradient(160deg,#111f13 0%,#184229 55%,#183d1f 100%);
+  background: linear-gradient(180deg, #114422 0%, #24652e 80%, #153a26 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 32px;
+  padding: 20px;
+  flex-wrap: nowrap;
 }
-.form-card {
-  background: rgba(25,34,27,0.95);
-  padding: 38px 32px;
+
+.logo-card {
+  background: #e7ffec; /* Branco suave */
+  padding: 40px 48px;
   border-radius: 16px;
-  box-shadow: 0 6px 48px rgba(20, 90, 32, 0.25);
-  width: 330px;
-  color: #fff;
+  box-shadow: 0 8px 56px rgba(27, 94, 32, 0.25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* Para login */
+  width: 360px;
+  height: 380px;
+}
+
+/* Para a tela de cadastro (com mais campos), sobrescreva no JSX com uma classe extra, exemplo "logo-card--register": */
+
+.logo-card.logo-card--register {
+  height: 460px;
+}
+
+.logo-card img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  user-select: none;
+}
+
+.form-card {
+  background: rgba(15, 15, 15, 0.95); /* Preto translúcido */
+  padding: 44px 48px;
+  border-radius: 16px;
+  box-shadow: 0 8px 56px rgba(0, 0, 0, 0.7);
+  max-width: 380px; /* Use largura fixa para formulário */
+  color: #e7ffec;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  min-width: 360px;
+
+  /* Login altura */
+  height: 380px;
 }
+
+/* Cadastro com mais campos - altura maior */
+
+.form-card.form-card--register {
+  height: 460px;
+}
+
 .form-card h2 {
-  font-weight: bold;
-  margin-bottom: 3px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  font-size: 2rem;
+  color: #a3d18b;
 }
+
 .form-card input {
   border-radius: 8px;
   border: 1.5px solid #264c38;
-  background: #e2f6e5;
-  padding: 10px 14px;
-  font-size: 1em;
-  margin: 5px 0;
+  background: #dff0d8;
+  padding: 12px 18px;
+  font-size: 1.1rem;
+  margin: 8px 0;
   outline: none;
   color: #194619;
+  transition: border 0.3s ease;
 }
+
 .form-card input:focus {
-  border: 2px solid #70d597;
+  border: 2px solid #7bc26f;
 }
+
 .error-message {
   color: #ff5252;
-  margin-bottom: 5px;
-  font-size: 0.98em;
+  margin-bottom: 6px;
+  font-size: 1rem;
+  font-weight: 700;
 }
+
 .form-links {
-  margin-top: 8px;
-  font-size: 0.94em;
-  color: #c8efd2;
+  margin-top: 14px;
+  font-size: 1rem;
+  color: #bde0b8;
 }
-.form-links button {
-  background: none;
-  border: none;
-  color: #94e299;
+
+.form-links a {
+  color: #8ec77c;
+  font-weight: 700;
   cursor: pointer;
   text-decoration: underline;
-  padding: 0 2px;
+  padding: 0 3px;
+}
+
+.form-links a:hover {
+  color: #6da75a;
 }
