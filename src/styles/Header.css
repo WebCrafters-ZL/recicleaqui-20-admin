@@ -1,0 +1,75 @@
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 48px;
+  background: linear-gradient(90deg, #0f3a0f, #1b5e20);
+  color: #e7ffec;
+  box-shadow: 0 4px 12px rgba(20, 90, 32, 0.22);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-size: 2.4rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  user-select: none;
+  color: #b2dfdb;
+}
+
+.header-actions {
+  display: flex;
+  gap: 22px;
+}
+
+.btn-link {
+  padding: 12px 36px;
+  font-weight: 700;
+  border-radius: 28px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 6px 14px rgba(27, 94, 32, 0.4);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 2.5px solid transparent;
+}
+
+.btn-link.primary {
+  background: linear-gradient(135deg, #3f7743, #1b5e20);
+  color: #e7ffec;
+  border-color: #1b5e20;
+}
+
+.btn-link.primary:hover {
+  background: linear-gradient(135deg, #549c58, #2f7b2f);
+  box-shadow: 0 8px 24px rgba(40, 120, 40, 0.7);
+  transform: translateY(-2px);
+  color: #d6f5d6;
+  border-color: #2f7b2f;
+}
+
+.btn-link.secondary {
+  background: #e7ffec;
+  color: #1b5e20;
+  border-color: #1b5e20;
+}
+
+.btn-link.secondary:hover {
+  background: #daf5d6;
+  color: #145214;
+  box-shadow: 0 8px 24px rgba(20, 90, 32, 0.4);
+  transform: translateY(-2px);
+  border-color: #145214;
+}
+
+.btn-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  user-select: none;
+}
