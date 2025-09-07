@@ -5,7 +5,7 @@ import Button from '../components/Button';
 import '../styles/Auth.css';
 import logo from '../assets/logo.png';
 
-function validatePassword(pw) {
+function validatePassword(pw: string) {
   return (
     pw.length >= 8 &&
     /[A-Z]/.test(pw) &&
@@ -14,17 +14,17 @@ function validatePassword(pw) {
   );
 }
 
-const Register = () => {
+const Register: React.FC = () => {
   const [form, setForm] = useState({ nome: '', email: '', senha: '', confirmar: '' });
   const [error, setError] = useState('');
   const { nome, email, senha, confirmar } = form;
 
-  function handleChange(e) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
     setError('');
   }
 
-  function handleSubmit(e) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!nome || !email || !senha || !confirmar) {
       setError('Preencha todos os campos');
@@ -38,49 +38,51 @@ const Register = () => {
   }
 
   return (
-    <div className="auth-container">
-      <div className="logo-card logo-card--register">
-        <img src={logo} alt="RecicleAqui Logo" />
-      </div>
-      <div className="form-card form-card--register">
-        <h2>Cadastro</h2>
-        <form onSubmit={handleSubmit}>
-          <input
-            name="nome"
-            type="text"
-            placeholder="Nome completo"
-            value={nome}
-            onChange={handleChange}
-            autoComplete="off"
-          />
-          <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={handleChange}
-            autoComplete="off"
-          />
-          <input
-            name="senha"
-            type="password"
-            placeholder="Senha"
-            value={senha}
-            onChange={handleChange}
-          />
-          <PasswordStrengthBar password={senha} />
-          <input
-            name="confirmar"
-            type="password"
-            placeholder="Confirmar senha"
-            value={confirmar}
-            onChange={handleChange}
-          />
-          {error && <div className="error-message">{error}</div>}
-          <Button label="Cadastrar" variant="primary" type="submit" />
-        </form>
-        <div className="form-links">
-          Já possui cadastro? <Link to="/login">Faça login</Link>
+    <div className="auth-bg">
+      <div className="unified-card">
+        <div className="unified-logo">
+          <img src={logo} alt="RecicleAqui Logo" />
+        </div>
+        <div className="unified-form">
+          <h2>Cadastro</h2>
+          <form onSubmit={handleSubmit}>
+            <input
+              name="nome"
+              type="text"
+              placeholder="Nome completo"
+              value={nome}
+              onChange={handleChange}
+              autoComplete="off"
+            />
+            <input
+              name="email"
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={handleChange}
+              autoComplete="off"
+            />
+            <input
+              name="senha"
+              type="password"
+              placeholder="Senha"
+              value={senha}
+              onChange={handleChange}
+            />
+            <PasswordStrengthBar password={senha} />
+            <input
+              name="confirmar"
+              type="password"
+              placeholder="Confirmar senha"
+              value={confirmar}
+              onChange={handleChange}
+            />
+            {error && <div className="error-message">{error}</div>}
+            <Button label="Cadastrar" variant="primary" type="submit" />
+          </form>
+          <div className="form-links">
+            Já possui cadastro? <Link to="/login">Faça login</Link>
+          </div>
         </div>
       </div>
     </div>
