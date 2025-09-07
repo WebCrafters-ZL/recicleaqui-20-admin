@@ -1,96 +1,92 @@
-.auth-container {
+.auth-bg {
   min-height: 100vh;
   width: 100vw;
-  background: linear-gradient(180deg, #114422 0%, #24652e 80%, #153a26 100%);
+  background: linear-gradient(180deg,#114422 0%,#24652e 80%,#153a26 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 32px;
-  padding: 20px;
-  flex-wrap: nowrap;
 }
 
-.logo-card {
-  background: #e7ffec; /* Branco suave */
-  padding: 40px 48px;
-  border-radius: 16px;
-  box-shadow: 0 8px 56px rgba(27, 94, 32, 0.25);
+.unified-card {
   display: flex;
+  flex-direction: row;
+  background: rgba(15, 15, 15, 0.97);
+  border-radius: 24px;
+  box-shadow: 0 8px 56px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  min-width: 680px;
+  max-width: 720px;
+  min-height: 380px;
+}
+
+.unified-logo, .unified-form {
+  display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-
-  /* Para login */
-  width: 360px;
+  width: 340px;
   height: 380px;
 }
 
-/* Para a tela de cadastro (com mais campos), sobrescreva no JSX com uma classe extra, exemplo "logo-card--register": */
-
-.logo-card.logo-card--register {
-  height: 460px;
+.unified-logo {
+  background: rgba(15, 15, 15, 0.97);
+  border-right: 1.5px solid #18422955;
 }
 
-.logo-card img {
-  max-width: 100%;
-  max-height: 100%;
+.unified-logo img {
+  max-width: 140px;
+  max-height: 150px;
   object-fit: contain;
   user-select: none;
 }
 
-.form-card {
-  background: rgba(15, 15, 15, 0.95); /* Preto translúcido */
-  padding: 44px 48px;
-  border-radius: 16px;
-  box-shadow: 0 8px 56px rgba(0, 0, 0, 0.7);
-  max-width: 380px; /* Use largura fixa para formulário */
+.unified-form {
+  background: rgba(15, 15, 15, 0.97);
+  gap: 0;
+  padding: 40px 32px 32px 32px;
   color: #e7ffec;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-width: 360px;
-
-  /* Login altura */
-  height: 380px;
+  align-items: flex-start;
 }
 
-/* Cadastro com mais campos - altura maior */
-
-.form-card.form-card--register {
-  height: 460px;
-}
-
-.form-card h2 {
+.unified-form h2 {
   font-weight: 700;
   margin-bottom: 14px;
   font-size: 2rem;
   color: #a3d18b;
 }
 
-.form-card input {
+.unified-form form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.unified-form input {
   border-radius: 8px;
   border: 1.5px solid #264c38;
   background: #dff0d8;
   padding: 12px 18px;
   font-size: 1.1rem;
-  margin: 8px 0;
   outline: none;
   color: #194619;
   transition: border 0.3s ease;
 }
 
-.form-card input:focus {
+.unified-form input:focus {
   border: 2px solid #7bc26f;
 }
 
 .error-message {
   color: #ff5252;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   font-size: 1rem;
   font-weight: 700;
 }
 
 .form-links {
-  margin-top: 14px;
+  margin-top: 8px;
   font-size: 1rem;
   color: #bde0b8;
 }
@@ -105,4 +101,26 @@
 
 .form-links a:hover {
   color: #6da75a;
+}
+
+@media (max-width: 820px) {
+  .unified-card {
+    flex-direction: column;
+    min-width: 320px;
+    max-width: 94vw;
+  }
+  .unified-logo, .unified-form {
+    width: 100%;
+    min-width: unset;
+    border-right: none !important;
+    border-bottom: 1.5px solid #18422955;
+    height: 160px;
+    padding: 16px 8vw;
+    align-items: center;
+  }
+  .unified-form {
+    border-bottom: none !important;
+    padding: 24px 8vw 32px 8vw;
+    align-items: flex-start;
+  }
 }
