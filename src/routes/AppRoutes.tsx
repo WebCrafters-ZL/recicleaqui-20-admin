@@ -1,15 +1,16 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import HomeUsuario from "../pages/HomeUsuario";
 
-const AppRoutes = () => (
+const AppRoutes: React.FC = () => (
   <Routes>
-    <Route path="/" element={<Home />} />
+    <Route path="/" element={<Navigate to="/login" replace />} />
     <Route path="/login" element={<Login />} />
     <Route path="/cadastro" element={<Register />} />
-    <Route path="*" element={<Navigate to="/" replace />} />
+    <Route path="/homeusuario" element={<HomeUsuario />} />
+    <Route path="*" element={<Navigate to="/login" replace />} />
   </Routes>
 );
 
