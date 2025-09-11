@@ -1,0 +1,12 @@
+.home-container {
+  display: flex;
+  height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 30px;
+  background-color: #f0f4f3;
+  overflow-y: auto;
+}
