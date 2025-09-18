@@ -1,0 +1,51 @@
+.faturamento-container {
+  padding: 30px;
+  background: #f0f4f3;
+  min-height: 100vh;
+}
+
+.faturamento-cards {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.card {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.08);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card h3 {
+  color: #2e7d32;
+  margin-bottom: 12px;
+}
+
+.card.receita {
+  border-left: 6px solid #43a047;
+}
+.card.coleta {
+  border-left: 6px solid #388e3c;
+}
+.card.pendente {
+  border-left: 6px solid #fbc02d;
+}
+
+.card p {
+  font-size: 1.7rem;
+  color: #444;
+  margin: 0;
+}
+
+.grafico-area {
+  background: #e8f5e9;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  color: #388e3c;
+}
