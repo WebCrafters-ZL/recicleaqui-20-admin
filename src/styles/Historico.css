@@ -1,0 +1,35 @@
+.historico-container {
+  padding: 30px;
+  background: #f0f4f3;
+  min-height: 100vh;
+}
+
+.historico-container h2 {
+  color: #2e7d32;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.08);
+  overflow: hidden;
+}
+
+th, td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: left;
+}
+
+th {
+  background-color: #2e7d32;
+  color: white;
+  font-weight: 600;
+}
+
+tbody tr:hover {
+  background-color: #e8f5e9;
+}
