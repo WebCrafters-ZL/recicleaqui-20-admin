@@ -1,49 +1,25 @@
-import React, { useState } from "react";
+import React from "react";
 import Sidebar from "../components/Sidebar";
+import { Outlet, useLocation } from "react-router-dom";
 import "../styles/HomeUsuario.css";
 
-const HomeUsuario: React.FC = () => {
-  const [activeSection, setActiveSection] = useState<string>("dashboard");
+const getActiveSection = (pathname: string): string => {
+  if (pathname.includes("/faturamento")) return "faturamento";
+  if (pathname.includes("/historico")) return "historico";
+  if (pathname.includes("/pedidos")) return "pedidos";
+  return "dashboard";
+};
 
-  const renderContent = () => {
-    switch (activeSection) {
-      case "dashboard":
-        return (
-          <section>
-            <h2>Dashboard</h2>
-            <p>Aqui ficam seus gráficos e KPIs do painel.</p>
-          </section>
-        );
-      case "faturamento":
-        return (
-          <section>
-            <h2>Faturamento</h2>
-            <p>Seção para controle financeiro do sistema.</p>
-          </section>
-        );
-      case "historico":
-        return (
-          <section>
-            <h2>Histórico</h2>
-            <p>Visualize o histórico das atividades.</p>
-          </section>
-        );
-      case "pedidos":
-        return (
-          <section>
-            <h2>Pedidos de Coleta</h2>
-            <p>Pedidos novos, incluindo denúncias e solicitações dos usuários.</p>
-          </section>
-        );
-      default:
-        return null;
-    }
-  };
+const HomeUsuario: React.FC = () => {
+  const location = useLocation();
+  const active = getActiveSection(location.pathname);
 
   return (
     <div className="home-container">
-      <Sidebar onNavigate={setActiveSection} active={activeSection} />
-      <main className="main-content">{renderContent()}</main>
+      <Sidebar active={active} />
+      <main className="main-content">
+        <Outlet />
+      </main>
     </div>
   );
 };

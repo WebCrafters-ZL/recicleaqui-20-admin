@@ -1,0 +1,41 @@
+.pedidos-container {
+  padding: 30px;
+  background: #f0f4f3;
+  min-height: 100vh;
+}
+
+.map-area {
+  margin-bottom: 30px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.08);
+}
+
+.tabela-area table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.08);
+  overflow: hidden;
+}
+
+.tabela-area th, .tabela-area td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.tabela-area th {
+  background: #2e7d32;
+  color: #fff;
+  font-weight: 600;
+}
+
+.tabela-area tr:last-child td {
+  border-bottom: none;
+}
+
+.tabela-area tr:hover {
+  background: #e8f5e9;
+}
