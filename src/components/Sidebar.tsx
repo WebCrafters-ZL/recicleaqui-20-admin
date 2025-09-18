@@ -1,48 +1,50 @@
 import React from "react";
 import { FaTachometerAlt, FaDollarSign, FaHistory, FaRegClipboard } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import "../styles/Sidebar.css";
 
 interface SidebarProps {
-  onNavigate: (section: string) => void;
   active: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onNavigate, active }) => {
+const Sidebar: React.FC<SidebarProps> = ({ active }) => {
+  const navigate = useNavigate();
+
   return (
     <aside className="sidebar">
       <div className="logo">RecicleAqui</div>
       <nav className="nav-buttons">
         <button
           className={active === "dashboard" ? "active" : ""}
-          onClick={() => onNavigate("dashboard")}
+          onClick={() => navigate("/homeusuario")}
           type="button"
         >
           <FaTachometerAlt className="icon" />
-          Dashboard
+          <span>Dashboard</span>
         </button>
         <button
           className={active === "faturamento" ? "active" : ""}
-          onClick={() => onNavigate("faturamento")}
+          onClick={() => navigate("/homeusuario/faturamento")}
           type="button"
         >
           <FaDollarSign className="icon" />
-          Faturamento
+          <span>Faturamento</span>
         </button>
         <button
           className={active === "historico" ? "active" : ""}
-          onClick={() => onNavigate("historico")}
+          onClick={() => navigate("/homeusuario/historico")}
           type="button"
         >
           <FaHistory className="icon" />
-          Histórico
+          <span>Histórico</span>
         </button>
         <button
           className={active === "pedidos" ? "active" : ""}
-          onClick={() => onNavigate("pedidos")}
+          onClick={() => navigate("/homeusuario/pedidos")}
           type="button"
         >
           <FaRegClipboard className="icon" />
-          Pedidos de Coleta
+          <span>Pedidos de Coleta</span>
         </button>
       </nav>
     </aside>
