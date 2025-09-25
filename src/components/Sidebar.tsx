@@ -1,5 +1,11 @@
 import React from "react";
-import { FaTachometerAlt, FaDollarSign, FaHistory, FaRegClipboard } from "react-icons/fa";
+import {
+  FaTachometerAlt,
+  FaDollarSign,
+  FaHistory,
+  FaRegClipboard,
+  FaSignOutAlt,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "../styles/Sidebar.css";
 
@@ -9,6 +15,11 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ active }) => {
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Aqui você pode adicionar lógica de logout (limpar token, etc)
+    navigate("/login");
+  };
 
   return (
     <aside className="sidebar">
@@ -47,6 +58,13 @@ const Sidebar: React.FC<SidebarProps> = ({ active }) => {
           <span>Pedidos de Coleta</span>
         </button>
       </nav>
+      {/* Botão de sair fixado na parte inferior */}
+      <div className="logout-container">
+        <button className="logout-button" type="button" onClick={handleLogout}>
+          <FaSignOutAlt className="icon" />
+          <span>Sair</span>
+        </button>
+      </div>
     </aside>
   );
 };
