@@ -6,7 +6,8 @@ import HomeUsuario from "../pages/HomeUsuario";
 import Historico from "../pages/Historico";
 import Faturamento from "../pages/Faturamento";
 import Pedidos from "../pages/Pedidos";
-import Dashboard from "../pages/Dashboard"; // 1. IMPORTAR O NOVO COMPONENTE
+import Dashboard from "../pages/Dashboard";
+import Perfil from "../pages/Perfil"; // 1. IMPORTAR A NOVA PÁGINA
 
 const AppRoutes: React.FC = () => (
   <Routes>
@@ -14,17 +15,13 @@ const AppRoutes: React.FC = () => (
     <Route path="/login" element={<Login />} />
     <Route path="/cadastro" element={<Register />} />
 
-    {/* Esta é a rota "pai" que mostra a Sidebar */}
     <Route path="/homeusuario" element={<HomeUsuario />}>
-      
-      {/* 2. A ROTA "INDEX" É A CORREÇÃO PRINCIPAL */}
-      {/* Ela diz ao React: "Quando o usuário estiver em /homeusuario, mostre este componente" */}
       <Route index element={<Dashboard />} />
-      
-      {/* As outras páginas continuam como sub-rotas */}
       <Route path="historico" element={<Historico />} />
       <Route path="faturamento" element={<Faturamento />} />
       <Route path="pedidos" element={<Pedidos />} />
+      {/* 2. ADICIONAR A ROTA PARA O PERFIL */}
+      <Route path="perfil" element={<Perfil />} /> 
     </Route>
 
     <Route path="*" element={<Navigate to="/login" replace />} />

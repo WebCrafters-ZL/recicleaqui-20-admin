@@ -5,6 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 20px 0; /* Adiciona um espaço para telas menores */
 }
 
 .unified-card {
@@ -16,36 +17,42 @@
   overflow: hidden;
   min-width: 680px;
   max-width: 720px;
-  min-height: 380px;
+  /* A altura agora será automática */
 }
 
-.unified-logo, .unified-form {
+.unified-logo {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 340px;
-  height: 380px;
-}
-
-.unified-logo {
+  min-height: 380px; /* Usar min-height para garantir um tamanho mínimo */
   background: rgba(15, 15, 15, 0.97);
   border-right: 1.5px solid #18422955;
 }
+
+/* --- CORREÇÃO AQUI --- */
+/* O seletor foi separado para que o formulário não tenha mais altura fixa */
+.unified-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: 340px;
+  min-height: 380px; /* Apenas uma altura mínima */
+  /* A propriedade 'height: 380px;' foi REMOVIDA */
+  background: rgba(15, 15, 15, 0.97);
+  gap: 0;
+  padding: 40px 32px 32px 32px;
+  color: #e7ffec;
+}
+
 
 .unified-logo img {
   max-width: 140px;
   max-height: 150px;
   object-fit: contain;
   user-select: none;
-}
-
-.unified-form {
-  background: rgba(15, 15, 15, 0.97);
-  gap: 0;
-  padding: 40px 32px 32px 32px;
-  color: #e7ffec;
-  align-items: flex-start;
 }
 
 .unified-form h2 {
@@ -114,6 +121,10 @@
     min-width: unset;
     border-right: none !important;
     border-bottom: 1.5px solid #18422955;
+    height: auto; /* Altura automática para mobile */
+    min-height: unset;
+  }
+  .unified-logo {
     height: 160px;
     padding: 16px 8vw;
     align-items: center;
