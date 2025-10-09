@@ -8,7 +8,7 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "../styles/Sidebar.css";
-
+// Teste para verificar o commit
 interface SidebarProps {
   active: string;
 }
