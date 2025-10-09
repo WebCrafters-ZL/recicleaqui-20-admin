@@ -1,67 +1,80 @@
 import React from "react";
-import {
-  FaTachometerAlt,
-  FaDollarSign,
-  FaHistory,
-  FaRegClipboard,
-  FaSignOutAlt,
+import { useLocation, useNavigate } from "react-router-dom";
+import { 
+  FaTachometerAlt, 
+  FaFileInvoiceDollar, 
+  FaHistory, 
+  FaClipboardList,
+  FaUserCircle,
+  FaSignOutAlt
 } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 import "../styles/Sidebar.css";
+import logo from "../assets/logo.png";
+// 1. IMPORTAR A FUNÇÃO DE LOGOUT
+import { fakeLogout } from "../api/fakeAuth";
 
-interface SidebarProps {
-  active: string;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ active }) => {
+const Sidebar: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
+  const isActive = (path: string) => location.pathname === path;
+
+  // 2. ADICIONAR A FUNÇÃO handleLogout NOVAMENTE
   const handleLogout = () => {
-    // Aqui você pode adicionar lógica de logout (limpar token, etc)
-    navigate("/login");
+    fakeLogout(); // Limpa os dados do usuário do localStorage
+    navigate('/login'); // Redireciona para a tela de login
   };
 
   return (
-    <aside className="sidebar">
-      <div className="logo">RecicleAqui</div>
-      <nav className="nav-buttons">
+    <aside className="sidebar-container">
+      <div className="sidebar-header">
+        <h1>RecicleAqui</h1>
+        <img src={logo} alt="RecicleAqui Logo" className="sidebar-logo" />
+      </div>
+
+      <nav className="sidebar-nav">
         <button
-          className={active === "dashboard" ? "active" : ""}
+          className={`nav-button ${isActive("/homeusuario") ? "active" : ""}`}
           onClick={() => navigate("/homeusuario")}
-          type="button"
         >
-          <FaTachometerAlt className="icon" />
+          <FaTachometerAlt className="nav-icon" />
           <span>Dashboard</span>
         </button>
         <button
-          className={active === "faturamento" ? "active" : ""}
+          className={`nav-button ${isActive("/homeusuario/faturamento") ? "active" : ""}`}
           onClick={() => navigate("/homeusuario/faturamento")}
-          type="button"
         >
-          <FaDollarSign className="icon" />
+          <FaFileInvoiceDollar className="nav-icon" />
           <span>Faturamento</span>
         </button>
         <button
-          className={active === "historico" ? "active" : ""}
+          className={`nav-button ${isActive("/homeusuario/historico") ? "active" : ""}`}
           onClick={() => navigate("/homeusuario/historico")}
-          type="button"
         >
-          <FaHistory className="icon" />
+          <FaHistory className="nav-icon" />
           <span>Histórico</span>
         </button>
         <button
-          className={active === "pedidos" ? "active" : ""}
+          className={`nav-button ${isActive("/homeusuario/pedidos") ? "active" : ""}`}
           onClick={() => navigate("/homeusuario/pedidos")}
-          type="button"
         >
-          <FaRegClipboard className="icon" />
+          <FaClipboardList className="nav-icon" />
           <span>Pedidos de Coleta</span>
         </button>
       </nav>
-      {/* Botão de sair fixado na parte inferior */}
-      <div className="logout-container">
-        <button className="logout-button" type="button" onClick={handleLogout}>
-          <FaSignOutAlt className="icon" />
+
+      <div className="sidebar-footer">
+        <button 
+          className={`nav-button profile-button ${isActive("/homeusuario/perfil") ? "active" : ""}`}
+          onClick={() => navigate("/homeusuario/perfil")}
+        >
+          <FaUserCircle className="nav-icon" />
+          <span>Perfil</span>
+        </button>
+        
+        {/* 3. ADICIONAR O 'onClick' AO BOTÃO SAIR */}
+        <button className="nav-button logout-button" onClick={handleLogout}>
+          <FaSignOutAlt className="nav-icon" />
           <span>Sair</span>
         </button>
       </div>

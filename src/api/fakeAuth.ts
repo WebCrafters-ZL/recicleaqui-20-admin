@@ -1,4 +1,11 @@
-export type FakeUser = { nome: string; email: string; senha: string };
+export type FakeUser = { 
+  nome: string; 
+  email: string; 
+  senha: string; 
+  // CAMPOS ADICIONADOS
+  cnpj: string;
+  endereco: string;
+};
 
 export function fakeRegister(user: FakeUser): { success: boolean; message: string } {
   const users = JSON.parse(localStorage.getItem("fakeUsers") || "[]");

@@ -7,6 +7,7 @@ import { fakeRegister } from "../api/fakeAuth";
 
 type ForcaSenha = "fraca" | "media" | "forte";
 
+// ... (as funções 'verificarSenha' and 'PasswordStrengthBar' continuam as mesmas) ...
 function verificarSenha(senha: string): { forca: ForcaSenha; regras: any } {
   const regras = {
     tamanho: senha.length >= 8,
@@ -40,8 +41,17 @@ const PasswordStrengthBar: React.FC<{ forca: ForcaSenha }> = ({ forca }) => {
   );
 };
 
+
 const Register: React.FC = () => {
-  const [form, setForm] = useState({ nome: "", email: "", senha: "", confirmar: "" });
+  // 1. ADICIONAR OS NOVOS CAMPOS AO ESTADO DO FORMULÁRIO
+  const [form, setForm] = useState({ 
+    nome: "", 
+    email: "", 
+    cnpj: "",      // Novo campo
+    endereco: "",  // Novo campo
+    senha: "", 
+    confirmar: "" 
+  });
   const [error, setError] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarSenhaConfirmar, setMostrarSenhaConfirmar] = useState(false);
@@ -49,7 +59,7 @@ const Register: React.FC = () => {
   const blurTimeout = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
-  const { nome, email, senha, confirmar } = form;
+  const { nome, email, cnpj, endereco, senha, confirmar } = form; // Adicionar novas variáveis
   const { forca, regras } = verificarSenha(senha);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +69,8 @@ const Register: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nome || !email || !senha || !confirmar) {
+    // 2. ATUALIZAR A VALIDAÇÃO
+    if (!nome || !email || !cnpj || !endereco || !senha || !confirmar) {
       setError("Preencha todos os campos");
       return;
     }
@@ -71,7 +82,8 @@ const Register: React.FC = () => {
       setError("Senha não atende aos requisitos");
       return;
     }
-    const res = fakeRegister({ nome, email, senha });
+    // 3. ENVIAR OS NOVOS DADOS NO REGISTRO
+    const res = fakeRegister({ nome, email, senha, cnpj, endereco });
     if (!res.success) {
       setError(res.message);
       return;
@@ -121,6 +133,28 @@ const Register: React.FC = () => {
               autoComplete="off"
               required
             />
+
+            {/* --- 4. ADICIONAR OS NOVOS CAMPOS NO FORMULÁRIO --- */}
+            <input
+              name="cnpj"
+              type="text"
+              placeholder="CNPJ"
+              value={form.cnpj}
+              onChange={handleChange}
+              autoComplete="off"
+              required
+            />
+            <input
+              name="endereco"
+              type="text"
+              placeholder="Endereço"
+              value={form.endereco}
+              onChange={handleChange}
+              autoComplete="off"
+              required
+            />
+            {/* --------------------------------------------------- */}
+
             <div style={{ position: 'relative' }}>
               <input
                 name="senha"

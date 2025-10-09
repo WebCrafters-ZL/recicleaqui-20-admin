@@ -1,57 +1,72 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaTachometerAlt, FaMapMarkerAlt, FaHistory, FaBoxOpen, FaCog, FaSignOutAlt } from "react-icons/fa";
+import { 
+  FaTachometerAlt, 
+  FaFileInvoiceDollar, 
+  FaHistory, 
+  FaClipboardList,
+  FaUserCircle, // Ícone para Perfil
+  FaSignOutAlt  // Ícone para Sair
+} from "react-icons/fa";
 import "../styles/Sidebar.css";
-
-
+import logo from "../assets/logo.png"; 
 
 const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar-container">
       <div className="sidebar-header">
+        <h1>RecicleAqui</h1>
       </div>
-      <nav className="nav-buttons">
+
+      <nav className="sidebar-nav">
         <button
           className={`nav-button ${isActive("/homeusuario") ? "active" : ""}`}
           onClick={() => navigate("/homeusuario")}
         >
           <FaTachometerAlt className="nav-icon" />
-          Dashboard
+          <span>Dashboard</span>
         </button>
         <button
-          className={`nav-button ${isActive("/homeusuario/pontos") ? "active" : ""}`}
-          onClick={() => navigate("/homeusuario/pontos")}
+          className={`nav-button ${isActive("/homeusuario/faturamento") ? "active" : ""}`}
+          onClick={() => navigate("/homeusuario/faturamento")}
         >
-          <FaMapMarkerAlt className="nav-icon" />
-          Pontos de Coleta
+          <FaFileInvoiceDollar className="nav-icon" />
+          <span>Faturamento</span>
         </button>
         <button
           className={`nav-button ${isActive("/homeusuario/historico") ? "active" : ""}`}
           onClick={() => navigate("/homeusuario/historico")}
         >
           <FaHistory className="nav-icon" />
-          Histórico de Descartes
+          <span>Histórico</span>
         </button>
         <button
-          className={`nav-button ${isActive("/homeusuario/produtos") ? "active" : ""}`}
-          onClick={() => navigate("/homeusuario/produtos")}
+          className={`nav-button ${isActive("/homeusuario/pedidos") ? "active" : ""}`}
+          onClick={() => navigate("/homeusuario/pedidos")}
         >
-          <FaBoxOpen className="nav-icon" />
-          Produtos
+          <FaClipboardList className="nav-icon" />
+          <span>Pedidos de Coleta</span>
         </button>
       </nav>
+
       <div className="sidebar-footer">
-        <button className="nav-button">
-          <FaCog className="nav-icon" />
-          Configurações
+        {/* --- BOTÃO DE PERFIL ADICIONADO AQUI --- */}
+        <button 
+          className={`nav-button profile-button ${isActive("/homeusuario/perfil") ? "active" : ""}`}
+          onClick={() => navigate("/homeusuario/perfil")}
+        >
+          <FaUserCircle className="nav-icon" />
+          <span>Perfil</span>
         </button>
-        <button className="nav-button">
+        
+        <button className="nav-button logout-button">
           <FaSignOutAlt className="nav-icon" />
-          Logout
+          <span>Sair</span>
         </button>
       </div>
     </aside>
