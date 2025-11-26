@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "../styles/Pedidos.css";
 
@@ -12,7 +12,7 @@ interface Pedido {
   longitude: number;
 }
 
-const pedidos: Pedido[] = [
+const pedidosOriginais: Pedido[] = [
   {
     id: 1,
     nome: "Maria Silva",
@@ -33,11 +33,49 @@ const pedidos: Pedido[] = [
   },
 ];
 
+const statusIcons: Record<string, string> = {
+  Pendente: "🟡",
+  Confirmado: "🟢",
+  "Em andamento": "🔵",
+  "Finalizado": "✅"
+};
+
 const Pedidos: React.FC = () => {
+  const [filtroStatus, setFiltroStatus] = useState("");
+  const [filtroTipo, setFiltroTipo] = useState("");
+
+  const pedidosFiltrados = pedidosOriginais.filter(
+    p =>
+      (!filtroStatus || p.status === filtroStatus) &&
+      (!filtroTipo || p.tipo === filtroTipo)
+  );
+
   return (
     <section className="pedidos-container">
-      <h2>Pedidos de Coleta</h2>
-      <div className="map-area">
+      <h2 style={{ fontSize: "2.2rem", marginBottom: "1rem" }}>Pedidos de Coleta</h2>
+
+      <div className="filtros-area" style={{ marginBottom: "1.5rem", display: "flex", gap: "1rem" }}>
+        <label>
+          <strong>Status:</strong>
+          <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)} style={{ marginLeft: 8 }}>
+            <option value="">Todos</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Confirmado">Confirmado</option>
+            <option value="Em andamento">Em andamento</option>
+            <option value="Finalizado">Finalizado</option>
+          </select>
+        </label>
+        <label>
+          <strong>Tipo:</strong>
+          <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)} style={{ marginLeft: 8 }}>
+            <option value="">Todos</option>
+            <option value="Descarte">Descarte</option>
+            <option value="Pedido de Coleta">Pedido de Coleta</option>
+          </select>
+        </label>
+      </div>
+
+      <div className="map-area" style={{ marginBottom: "2rem", borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 16px #0002" }}>
         <MapContainer
           center={[-23.563987, -46.654987]}
           zoom={12}
@@ -47,22 +85,38 @@ const Pedidos: React.FC = () => {
             attribution="© OpenStreetMap"
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          {pedidos.map((pedido) => (
+          {pedidosFiltrados.map((pedido) => (
             <Marker key={pedido.id} position={[pedido.latitude, pedido.longitude]}>
               <Popup>
                 <strong>{pedido.nome}</strong>
                 <br />
-                {pedido.endereco}
+                <span>{pedido.endereco}</span>
                 <br />
-                Tipo: {pedido.tipo}
+                <b>Tipo:</b> {pedido.tipo}
                 <br />
-                Status: {pedido.status}
+                <b>Status:</b> {statusIcons[pedido.status] || ""} {pedido.status}
+                <br />
+                <button
+                  style={{
+                    marginTop: "6px",
+                    padding: "2px 8px",
+                    color: "#fff",
+                    background: "#7bc26f",
+                    border: "none",
+                    borderRadius: "6px",
+                    cursor: "pointer"
+                  }}
+                  onClick={() => alert(`Detalhes do pedido de ${pedido.nome}`)}
+                >
+                  Ver detalhes
+                </button>
               </Popup>
             </Marker>
           ))}
         </MapContainer>
       </div>
-      <div className="tabela-area">
+
+      <div className="tabela-area" style={{ overflowX: "auto" }}>
         <table>
           <thead>
             <tr>
@@ -71,20 +125,32 @@ const Pedidos: React.FC = () => {
               <th>Endereço</th>
               <th>Tipo</th>
               <th>Status</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {pedidos.map((pedido) => (
-              <tr key={pedido.id}>
+            {pedidosFiltrados.map((pedido, idx) => (
+              <tr key={pedido.id} style={{ background: idx % 2 === 0 ? "#eefae7" : "#fff" }}>
                 <td>{pedido.id}</td>
                 <td>{pedido.nome}</td>
                 <td>{pedido.endereco}</td>
                 <td>{pedido.tipo}</td>
-                <td>{pedido.status}</td>
+                <td>
+                  {statusIcons[pedido.status] || ""} {pedido.status}
+                </td>
+                <td>
+                  <button title="Ver detalhes" style={{ marginRight: 8 }} onClick={() => alert(`Ver pedido ${pedido.id}`)}>🔍</button>
+                  <button title="Excluir pedido" onClick={() => alert(`Excluir pedido ${pedido.id}`)}>🗑️</button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+        {pedidosFiltrados.length === 0 && (
+          <div style={{ padding: "2rem", textAlign: "center", color: "#aaa" }}>
+            Nenhum pedido encontrado.
+          </div>
+        )}
       </div>
     </section>
   );
