@@ -5,9 +5,14 @@ import "../styles/Auth.css";
 import logo from "../assets/logo.png";
 import { fakeRegister } from "../api/fakeAuth";
 
+// Toastify para substituir alert (opcional/recomendado)
+// import { ToastContainer, toast } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
+
 type ForcaSenha = "fraca" | "media" | "forte";
 
-// ... (as funções 'verificarSenha' and 'PasswordStrengthBar' continuam as mesmas) ...
+// Função PasswordStrengthBar permanece
+
 function verificarSenha(senha: string): { forca: ForcaSenha; regras: any } {
   const regras = {
     tamanho: senha.length >= 8,
@@ -16,13 +21,10 @@ function verificarSenha(senha: string): { forca: ForcaSenha; regras: any } {
     numero: /\d/.test(senha),
     especial: /[!@#$%^&*(),.?":{}|<>]/.test(senha)
   };
-
   const total = Object.values(regras).filter(Boolean).length;
-
   let forca: ForcaSenha = "fraca";
   if (total >= 4) forca = "forte";
   else if (total === 3) forca = "media";
-
   return { forca, regras };
 }
 
@@ -34,62 +36,92 @@ const PasswordStrengthBar: React.FC<{ forca: ForcaSenha }> = ({ forca }) => {
   return (
     <div style={{ width: '100%', margin: "12px 0 2px 0", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
       <div style={{ height: 8, width: "100%", backgroundColor: "#ddd", borderRadius: 5, overflow: 'hidden' }}>
-        <div style={{ height: "100%", width: widthMap[forca], backgroundColor: colorMap[forca], borderRadius: 5, transition: "width 0.3s ease" }} />
+        <div style={{
+          height: "100%", width: widthMap[forca], backgroundColor: colorMap[forca],
+          borderRadius: 5, transition: "width 0.3s ease"
+        }} />
       </div>
-      <span style={{ color: colorMap[forca], fontWeight: 600, fontSize: 14, margin: "4px 0 0 0" }}>{labelMap[forca]}</span>
+      <span style={{
+        color: colorMap[forca], fontWeight: 600, fontSize: 14, margin: "4px 0 0 0"
+      }}>{labelMap[forca]}</span>
     </div>
   );
 };
 
+// Função para máscara CNPJ
+const formatCNPJ = (value: string) => {
+  return value
+    .replace(/\D/g, "")
+    .replace(/^(\d{2})(\d)/, "$1.$2")
+    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1/$2")
+    .replace(/(\d{4})(\d)/, "$1-$2")
+    .slice(0, 18);
+};
 
 const Register: React.FC = () => {
-  // 1. ADICIONAR OS NOVOS CAMPOS AO ESTADO DO FORMULÁRIO
-  const [form, setForm] = useState({ 
-    nome: "", 
-    email: "", 
-    cnpj: "",      // Novo campo
-    endereco: "",  // Novo campo
-    senha: "", 
-    confirmar: "" 
+  const [form, setForm] = useState({
+    cnpj: "",
+    nome: "",
+    endereco: "",
+    email: "",
+    senha: "",
+    confirmar: ""
   });
   const [error, setError] = useState("");
+  const [loadingCNPJ, setLoadingCNPJ] = useState(false);
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarSenhaConfirmar, setMostrarSenhaConfirmar] = useState(false);
   const [mostrarRegras, setMostrarRegras] = useState(false);
   const blurTimeout = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
-  const { nome, email, cnpj, endereco, senha, confirmar } = form; // Adicionar novas variáveis
+  const { cnpj, nome, endereco, email, senha, confirmar } = form;
   const { forca, regras } = verificarSenha(senha);
 
+  // Mask and API CNPJ
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    setError("");
+    const { name, value } = e.target;
+    if (name === "cnpj") {
+      setForm(prev => ({ ...prev, cnpj: formatCNPJ(value) }));
+      setError("");
+    } else {
+      setForm(prev => ({ ...prev, [name]: value }));
+      setError("");
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // 2. ATUALIZAR A VALIDAÇÃO
-    if (!nome || !email || !cnpj || !endereco || !senha || !confirmar) {
-      setError("Preencha todos os campos");
+  // Preenche automaticamente nome/endereço pelo CNPJ usando API CNPJ.ws
+  const handleCNPJBlur = async () => {
+    const rawCNPJ = cnpj.replace(/\D/g, "");
+    if (rawCNPJ.length !== 14) {
+      setError("CNPJ inválido");
+      setForm(prev => ({ ...prev, nome: "", endereco: "" }));
       return;
     }
-    if (senha !== confirmar) {
-      setError("Senhas não coincidem");
-      return;
+    setLoadingCNPJ(true);
+    setError("");
+    try {
+      const res = await fetch(`https://cnpj.ws/cnpj/${rawCNPJ}`);
+      const data = await res.json();
+      if (data.error) {
+        setError("CNPJ não encontrado.");
+        setForm(prev => ({ ...prev, nome: "", endereco: "" }));
+      } else {
+        const est = data.estabelecimento || {};
+        const enderecoCompleto = `${est.logradouro || ""}, ${est.numero || ""}, ${est.bairro || ""}, ${est.cidade?.nome || ""} - ${est.estado?.sigla || ""}`;
+        setForm(prev => ({
+          ...prev,
+          nome: data.razao_social || "",
+          endereco: enderecoCompleto.replace(/(, )+$/g, "").trim()
+        }));
+      }
+    } catch {
+      setError("Erro ao consultar CNPJ.");
+      setForm(prev => ({ ...prev, nome: "", endereco: "" }));
+    } finally {
+      setLoadingCNPJ(false);
     }
-    if (!regras.tamanho || !regras.maiuscula || !regras.especial) {
-      setError("Senha não atende aos requisitos");
-      return;
-    }
-    // 3. ENVIAR OS NOVOS DADOS NO REGISTRO
-    const res = fakeRegister({ nome, email, senha, cnpj, endereco });
-    if (!res.success) {
-      setError(res.message);
-      return;
-    }
-    alert(res.message);
-    navigate("/login");
   };
 
   const handleFocus = () => {
@@ -106,6 +138,34 @@ const Register: React.FC = () => {
     }, 300);
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!cnpj || !nome || !endereco || !email || !senha || !confirmar) {
+      setError("Preencha todos os campos");
+      // toast.warning("Preencha todos os campos!");
+      return;
+    }
+    if (senha !== confirmar) {
+      setError("Senhas não coincidem");
+      // toast.error("Senhas não coincidem");
+      return;
+    }
+    if (!regras.tamanho || !regras.maiuscula || !regras.especial) {
+      setError("Senha não atende aos requisitos");
+      // toast.info("Senha não atende aos requisitos");
+      return;
+    }
+    const res = fakeRegister({ cnpj, nome, endereco, email, senha });
+    if (!res.success) {
+      setError(res.message);
+      // toast.error(res.message);
+      return;
+    }
+    // toast.success(res.message);
+    navigate("/login");
+  };
+
+  // Ordem otimizada do formulário: começa pelo CNPJ
   return (
     <div className="auth-bg">
       <div className="unified-card">
@@ -116,51 +176,54 @@ const Register: React.FC = () => {
           <h2>Cadastro</h2>
           <form onSubmit={handleSubmit} noValidate>
             <input
-              name="nome"
-              type="text"
-              placeholder="Nome completo"
-              value={form.nome}
-              onChange={handleChange}
-              autoComplete="off"
-              required
-            />
-            <input
-              name="email"
-              type="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={handleChange}
-              autoComplete="off"
-              required
-            />
-
-            {/* --- 4. ADICIONAR OS NOVOS CAMPOS NO FORMULÁRIO --- */}
-            <input
               name="cnpj"
               type="text"
               placeholder="CNPJ"
-              value={form.cnpj}
+              value={cnpj}
+              onChange={handleChange}
+              onBlur={handleCNPJBlur}
+              autoComplete="off"
+              maxLength={18}
+              required
+            />
+            {loadingCNPJ && <div style={{ color: "#7bc26f", marginBottom: 8 }}>Consultando dados do CNPJ...</div>}
+            <input
+              name="nome"
+              type="text"
+              placeholder="Nome da empresa"
+              value={nome}
               onChange={handleChange}
               autoComplete="off"
               required
+              readOnly
+              style={{ backgroundColor: "#eafbe2" }}
             />
             <input
               name="endereco"
               type="text"
               placeholder="Endereço"
-              value={form.endereco}
+              value={endereco}
+              onChange={handleChange}
+              autoComplete="off"
+              required
+              readOnly
+              style={{ backgroundColor: "#eafbe2" }}
+            />
+            <input
+              name="email"
+              type="email"
+              placeholder="Email"
+              value={email}
               onChange={handleChange}
               autoComplete="off"
               required
             />
-            {/* --------------------------------------------------- */}
-
             <div style={{ position: 'relative' }}>
               <input
                 name="senha"
                 type={mostrarSenha ? "text" : "password"}
                 placeholder="Senha"
-                value={form.senha}
+                value={senha}
                 onChange={handleChange}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
@@ -240,6 +303,8 @@ const Register: React.FC = () => {
             {error && <div className="error-message">{error}</div>}
             <Button label="Cadastrar" type="submit" />
           </form>
+          {/* Toastify container opcional */}
+          {/* <ToastContainer position="top-right" autoClose={3000} /> */}
           <div className="form-links">
             Já possui cadastro? <Link to="/login">Faça login</Link>
           </div>
