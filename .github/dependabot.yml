@@ -1,0 +1,33 @@
+version: 2
+# Dependabot Automation for RecicleAqui Admin
+
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"             # Raiz do projeto
+    schedule:
+      interval: "weekly"       # Executa toda semana
+      day: "monday"            # Segunda-feira
+      time: "08:00"            # 08:00 UTC (ajuste conforme seu fuso)
+    open-pull-requests-limit: 5  # Máximo de PRs automáticas abertas
+    allow:
+      - dependency-type: "direct"   # Atualize dependências principais do projeto
+      - dependency-type: "indirect" # Também atualize dependências transientes (subdependências)
+    ignore:
+      - dependency-name: "react-scripts"  # Exemplo de dependências a ignorar
+        versions: ["*"]
+      - dependency-name: "some-pkg"
+        update-types: ["version-update:semver-major"] # Ignore updates breaking (major)
+    commit-message:
+      prefix: "[dependabot]"
+      include: "scope"
+      # Faz commit com prefixo e contexto do pacote
+
+  # Exemplo adicional para GitHub Actions (opcional):
+  - package-ecosystem: "github-actions"
+    directory: "/"             # Raiz do projeto
+    schedule:
+      interval: "monthly"      # Só verifica uma vez ao mês
+      time: "09:00"
+    open-pull-requests-limit: 2
+
+# Mais informações: https://docs.github.com/pt/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/configuration-options-for-dependency-updates
