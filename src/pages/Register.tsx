@@ -5,13 +5,7 @@ import "../styles/Auth.css";
 import logo from "../assets/logo.png";
 import { fakeRegister } from "../api/fakeAuth";
 
-// Toastify para substituir alert (opcional/recomendado)
-// import { ToastContainer, toast } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.css";
-
 type ForcaSenha = "fraca" | "media" | "forte";
-
-// Função PasswordStrengthBar permanece
 
 function verificarSenha(senha: string): { forca: ForcaSenha; regras: any } {
   const regras = {
@@ -32,7 +26,6 @@ const PasswordStrengthBar: React.FC<{ forca: ForcaSenha }> = ({ forca }) => {
   const widthMap = { fraca: "33%", media: "66%", forte: "100%" };
   const colorMap = { fraca: "#f44336", media: "#ff9800", forte: "#4caf50" };
   const labelMap = { fraca: "Senha fraca", media: "Senha média", forte: "Senha forte" };
-
   return (
     <div style={{ width: '100%', margin: "12px 0 2px 0", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
       <div style={{ height: 8, width: "100%", backgroundColor: "#ddd", borderRadius: 5, overflow: 'hidden' }}>
@@ -48,7 +41,7 @@ const PasswordStrengthBar: React.FC<{ forca: ForcaSenha }> = ({ forca }) => {
   );
 };
 
-// Função para máscara CNPJ
+// Máscara de CNPJ
 const formatCNPJ = (value: string) => {
   return value
     .replace(/\D/g, "")
@@ -79,7 +72,7 @@ const Register: React.FC = () => {
   const { cnpj, nome, endereco, email, senha, confirmar } = form;
   const { forca, regras } = verificarSenha(senha);
 
-  // Mask and API CNPJ
+  // Atualiza campos e aplica máscara no CNPJ
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name === "cnpj") {
@@ -91,7 +84,7 @@ const Register: React.FC = () => {
     }
   };
 
-  // Preenche automaticamente nome/endereço pelo CNPJ usando API CNPJ.ws
+  // Busca dados na CNPJ.ws e permite edição manual
   const handleCNPJBlur = async () => {
     const rawCNPJ = cnpj.replace(/\D/g, "");
     if (rawCNPJ.length !== 14) {
@@ -142,30 +135,24 @@ const Register: React.FC = () => {
     e.preventDefault();
     if (!cnpj || !nome || !endereco || !email || !senha || !confirmar) {
       setError("Preencha todos os campos");
-      // toast.warning("Preencha todos os campos!");
       return;
     }
     if (senha !== confirmar) {
       setError("Senhas não coincidem");
-      // toast.error("Senhas não coincidem");
       return;
     }
     if (!regras.tamanho || !regras.maiuscula || !regras.especial) {
       setError("Senha não atende aos requisitos");
-      // toast.info("Senha não atende aos requisitos");
       return;
     }
     const res = fakeRegister({ cnpj, nome, endereco, email, senha });
     if (!res.success) {
       setError(res.message);
-      // toast.error(res.message);
       return;
     }
-    // toast.success(res.message);
     navigate("/login");
   };
 
-  // Ordem otimizada do formulário: começa pelo CNPJ
   return (
     <div className="auth-bg">
       <div className="unified-card">
@@ -195,7 +182,6 @@ const Register: React.FC = () => {
               onChange={handleChange}
               autoComplete="off"
               required
-              readOnly
               style={{ backgroundColor: "#eafbe2" }}
             />
             <input
@@ -206,7 +192,6 @@ const Register: React.FC = () => {
               onChange={handleChange}
               autoComplete="off"
               required
-              readOnly
               style={{ backgroundColor: "#eafbe2" }}
             />
             <input
@@ -303,8 +288,6 @@ const Register: React.FC = () => {
             {error && <div className="error-message">{error}</div>}
             <Button label="Cadastrar" type="submit" />
           </form>
-          {/* Toastify container opcional */}
-          {/* <ToastContainer position="top-right" autoClose={3000} /> */}
           <div className="form-links">
             Já possui cadastro? <Link to="/login">Faça login</Link>
           </div>
