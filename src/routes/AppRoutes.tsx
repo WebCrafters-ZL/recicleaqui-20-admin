@@ -7,7 +7,8 @@ import Historico from "../pages/Historico";
 import Faturamento from "../pages/Faturamento";
 import Pedidos from "../pages/Pedidos";
 import Dashboard from "../pages/Dashboard";
-import Perfil from "../pages/Perfil"; // 1. IMPORTAR A NOVA PÁGINA
+import Perfil from "../pages/Perfil";
+import ProtectedRoutes from "./ProtectedRoutes"; // 1. Import
 
 const AppRoutes: React.FC = () => (
   <Routes>
@@ -15,13 +16,15 @@ const AppRoutes: React.FC = () => (
     <Route path="/login" element={<Login />} />
     <Route path="/cadastro" element={<Register />} />
 
-    <Route path="/homeusuario" element={<HomeUsuario />}>
-      <Route index element={<Dashboard />} />
-      <Route path="historico" element={<Historico />} />
-      <Route path="faturamento" element={<Faturamento />} />
-      <Route path="pedidos" element={<Pedidos />} />
-      {/* 2. ADICIONAR A ROTA PARA O PERFIL */}
-      <Route path="perfil" element={<Perfil />} /> 
+    {/* Protege todas rotas abaixo */}
+    <Route element={<ProtectedRoutes />}>
+      <Route path="/homeusuario" element={<HomeUsuario />}>
+        <Route index element={<Dashboard />} />
+        <Route path="historico" element={<Historico />} />
+        <Route path="faturamento" element={<Faturamento />} />
+        <Route path="pedidos" element={<Pedidos />} />
+        <Route path="perfil" element={<Perfil />} />
+      </Route>
     </Route>
 
     <Route path="*" element={<Navigate to="/login" replace />} />
