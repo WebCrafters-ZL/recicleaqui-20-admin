@@ -1,55 +1,61 @@
-RecicleAqui Admin
+🚀 RecicleAqui Admin
+Painel administrativo web moderno para gestão da plataforma RecicleAqui
+Aplicação desenvolvida em React + Vite, rápida e escalável para times técnicos, gestores e mantenedores do sistema.
 
-Painel administrativo web para a plataforma RecicleAqui. Este projeto utiliza React com Vite e foi desenvolvido para gestão de usuários, pedidos, faturamento e demais funcionalidades do ambiente admin. Ideal para equipes técnicas que precisam acompanhar e administrar o funcionamento da plataforma RecicleAqui.
+🖼️ Visão geral
+O RecicleAqui Admin é o painel digital para acompanhamento e administração de usuários, pedidos, faturamento e operações da plataforma RecicleAqui.
+O projeto utiliza uma arquitetura modular para facilitar integração, manutenção e expansão de funcionalidades de backoffice.
 
-🚀 Tecnologias Utilizadas
-React
+🛠️ Tecnologias
+React ⚛️
 
-Vite
+Vite ⚡
 
-[TypeScript]
+TypeScript 🟦
 
-[React Router Dom]
+React Router Dom
 
-[CSS]
+CSS Modules
+
+ESLint + Prettier
 
 📦 Requisitos
-Node.js 18+ instalado
+Node.js v18+
 
-npm (versão 8+ recomendada) ou yarn
+npm v8+ ou Yarn
 
-🔧 Instalação e Execução Local
-Clone o repositório:
+Editor recomendado: VSCode
 
+💻 Como rodar o projeto
 bash
+# Clone o repositório
 git clone https://github.com/WebCrafters-ZL/recicleaqui-20-admin.git
+
+# Acesse a pasta
 cd recicleaqui-20-admin
-Instale as dependências:
 
-bash
+# Instale as dependências
 npm install
-ou
+# ou
 yarn
-Inicie o servidor de desenvolvimento:
 
-bash
+# Execute o servidor de desenvolvimento
 npm run dev
-ou
+# ou
 yarn dev
-Acesse a aplicação no navegador:
+Abra http://localhost:5173 no navegador para visualizar o painel em funcionamento.
 
+📚 Estrutura de Pastas
 text
-http://localhost:5173
-
-🗂️ Estrutura de Pastas
-src/pages: Páginas principais do painel
-
-src/components: Componentes reutilizáveis
-
-src/styles: Arquivos de estilo CSS
-
-src/routes: Estrutura de rotas
-
+src/
+  ├── pages/        # Páginas principais (Login, Dashboard, etc)
+  ├── components/   # Componentes reutilizáveis
+  ├── styles/       # CSS e temas
+  ├── routes/       # Arquivos de rotas protegidas e públicas
+🤝 Contribuição
+Pull Requests, sugestões e melhorias são bem-vindas!
+Abra uma issue ou PR e participe da comunidade RecicleAqui.
 
 📝 Licença
-Projeto público, consulte termos do repositório ou equipe técnica para uso comercial.
+Este projeto é público e aberto para melhoria por toda a comunidade. Consulte o repositório para detalhes sobre licença de uso.
+
