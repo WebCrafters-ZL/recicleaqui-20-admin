@@ -1,12 +1,60 @@
-# React + Vite
+🚀 # RecicleAqui Admin
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Painel administrativo web moderno para gestão da plataforma RecicleAqui
+Aplicação desenvolvida em React + Vite, rápida e escalável para times técnicos, gestores e mantenedores do sistema.
 
-Currently, two official plugins are available:
+🖼️ # Visão geral
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+O RecicleAqui Admin é o painel digital para acompanhamento e administração de usuários, pedidos, faturamento e operações da plataforma RecicleAqui.
+O projeto utiliza uma arquitetura modular para facilitar integração, manutenção e expansão de funcionalidades de backoffice.
 
-## Expanding the ESLint configuration
+🛠️ # Tecnologias
+React ⚛️
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Vite ⚡
+
+TypeScript 🟦
+
+React Router Dom
+
+CSS Modules
+
+ESLint + Prettier
+
+📦 # Requisitos
+Node.js v18+
+
+npm v8+ ou Yarn
+
+Editor recomendado: VSCode
+
+💻 # Como rodar o projeto
+bash
+ Clone o repositório
+git clone https://github.com/WebCrafters-ZL/recicleaqui-20-admin.git
+
+ Acesse a pasta
+cd recicleaqui-20-admin
+
+ Instale as dependências
+npm install ou yarn
+
+ Execute o servidor de desenvolvimento
+npm run dev ou yarn dev
+
+Abra http://localhost:5173 no navegador para visualizar o painel em funcionamento.
+
+📚 # Estrutura de Pastas
+text
+src/
+  ├── pages/        # Páginas principais (Login, Dashboard, etc)
+  ├── components/   # Componentes reutilizáveis
+  ├── styles/       # CSS e temas
+  ├── routes/       # Arquivos de rotas protegidas e públicas
+🤝 # Contribuição
+Pull Requests, sugestões e melhorias são bem-vindas!
+Abra uma issue ou PR e participe da comunidade RecicleAqui.
+
+📝 # Licença
+Este projeto é público e aberto para melhoria por toda a comunidade. Consulte o repositório para detalhes sobre licença de uso.
+
