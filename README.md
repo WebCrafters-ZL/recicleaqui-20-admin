@@ -1,12 +1,54 @@
-# React + Vite
+RecicleAqui Admin
+Painel administrativo web para a plataforma RecicleAqui. Este projeto utiliza React com Vite e foi desenvolvido para gestão de usuários, pedidos, faturamento e demais funcionalidades do ambiente admin. Ideal para equipes técnicas que precisam acompanhar e administrar o funcionamento da plataforma RecicleAqui.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🚀 Tecnologias Utilizadas
+React
 
-Currently, two official plugins are available:
+Vite
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+[TypeScript]
 
-## Expanding the ESLint configuration
+[React Router Dom]
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+[CSS]
+
+📦 Requisitos
+Node.js 18+ instalado
+
+npm (versão 8+ recomendada) ou yarn
+
+🔧 Instalação e Execução Local
+Clone o repositório:
+
+bash
+git clone https://github.com/WebCrafters-ZL/recicleaqui-20-admin.git
+cd recicleaqui-20-admin
+Instale as dependências:
+
+bash
+npm install
+# ou
+yarn
+Inicie o servidor de desenvolvimento:
+
+bash
+npm run dev
+# ou
+yarn dev
+Acesse a aplicação no navegador:
+
+text
+http://localhost:5173
+
+🗂️ Estrutura de Pastas
+src/pages: Páginas principais do painel
+
+src/components: Componentes reutilizáveis
+
+src/styles: Arquivos de estilo CSS
+
+src/routes: Estrutura de rotas
+
+
+📝 Licença
+Projeto público, consulte termos do repositório ou equipe técnica para uso comercial.
