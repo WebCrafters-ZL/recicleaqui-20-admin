@@ -1,4 +1,5 @@
 RecicleAqui Admin
+
 Painel administrativo web para a plataforma RecicleAqui. Este projeto utiliza React com Vite e foi desenvolvido para gestão de usuários, pedidos, faturamento e demais funcionalidades do ambiente admin. Ideal para equipes técnicas que precisam acompanhar e administrar o funcionamento da plataforma RecicleAqui.
 
 🚀 Tecnologias Utilizadas
@@ -27,13 +28,13 @@ Instale as dependências:
 
 bash
 npm install
-# ou
+ou
 yarn
 Inicie o servidor de desenvolvimento:
 
 bash
 npm run dev
-# ou
+ou
 yarn dev
 Acesse a aplicação no navegador:
 
