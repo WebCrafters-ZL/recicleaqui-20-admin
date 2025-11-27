@@ -12,6 +12,13 @@ interface Pedido {
   longitude: number;
 }
 
+interface HistoricoItem {
+  id: number;
+  usuario: string;
+  acao: string;
+  data: string;
+}
+
 const pedidosMock: Pedido[] = [
   {
     id: 1,
@@ -27,7 +34,7 @@ const pedidosMock: Pedido[] = [
     nome: "João Souza",
     endereco: "Av. Paulista, 1500",
     tipo: "Pedido de Coleta",
-    status: "Confirmado",
+    status: "Pendente",
     latitude: -23.564224,
     longitude: -46.651436,
   },
@@ -54,7 +61,7 @@ const pedidosMock: Pedido[] = [
     nome: "Fernanda Costa",
     endereco: "Av. Brigadeiro Faria Lima, 2200",
     tipo: "Pedido de Coleta",
-    status: "Em andamento",
+    status: "Pendente",
     latitude: -23.571,
     longitude: -46.689,
   },
@@ -72,13 +79,42 @@ const Pedidos: React.FC = () => {
   const [filtroStatus, setFiltroStatus] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
 
+  const registrarNoHistorico = (pedido: Pedido, novoStatus: string) => {
+    const stored = localStorage.getItem("acceptedOrders");
+    const lista: HistoricoItem[] = stored ? JSON.parse(stored) : [];
+    
+    // VERIFICA SE JÁ EXISTE REGISTRO PARA ESSE PEDIDO (evita duplicação)
+    const existe = lista.some(item => item.id === pedido.id);
+    if (existe) return; // Não registra se já existe
+
+    const agora = new Date();
+    const data = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}-${String(agora.getDate()).padStart(2, "0")} ${String(agora.getHours()).padStart(2, "0")}:${String(agora.getMinutes()).padStart(2, "0")}`;
+
+    lista.push({
+      id: pedido.id,
+      usuario: pedido.nome,
+      acao: `Pedido alterado para "${novoStatus}"`,
+      data,
+    });
+
+    localStorage.setItem("acceptedOrders", JSON.stringify(lista));
+  };
+
   const handleAceitarPedido = (id: number) => {
     setPedidos(prev =>
-      prev.map(p =>
-        p.id === id
-          ? { ...p, status: p.status === "Pendente" ? "Confirmado" : "Em andamento" }
-          : p
-      )
+      prev.map(p => {
+        if (p.id === id && p.status === "Pendente") {
+          const atualizado = { ...p, status: "Confirmado" };
+          registrarNoHistorico(atualizado, "Confirmado");
+          return atualizado;
+        }
+        if (p.id === id && p.status === "Confirmado") {
+          const atualizado = { ...p, status: "Em andamento" };
+          registrarNoHistorico(atualizado, "Em andamento");
+          return atualizado;
+        }
+        return p;
+      })
     );
   };
 
@@ -90,11 +126,18 @@ const Pedidos: React.FC = () => {
 
   return (
     <section className="pedidos-container">
-      <h2 style={{ fontSize: "2.2rem", marginBottom: "1rem" }}>Pedidos de Coleta</h2>
+      <h2 style={{ fontSize: "2.2rem", marginBottom: "1rem" }}>
+        Pedidos de Coleta
+      </h2>
 
       <div
         className="filtros-area"
-        style={{ marginBottom: "1.5rem", display: "flex", gap: "1rem", flexWrap: "wrap" }}
+        style={{
+          marginBottom: "1.5rem",
+          display: "flex",
+          gap: "1rem",
+          flexWrap: "wrap",
+        }}
       >
         <label>
           <strong>Status:</strong>
@@ -172,26 +215,43 @@ const Pedidos: React.FC = () => {
                 <br />
                 <b>Tipo:</b> {pedido.tipo}
                 <br />
-                <b>Status:</b> {statusIcons[pedido.status] || ""} {pedido.status}
+                <b>Status:</b> {statusIcons[pedido.status] || ""}{" "}
+                {pedido.status}
                 <br />
-                <button
-                  style={{
-                    marginTop: "6px",
-                    padding: "4px 10px",
-                    color: "#fff",
-                    background:
-                      pedido.status === "Pendente" ? "#7bc26f" : "#4caf50",
-                    border: "none",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                    fontSize: 13,
-                  }}
-                  onClick={() => handleAceitarPedido(pedido.id)}
-                >
-                  {pedido.status === "Pendente"
-                    ? "Aceitar pedido"
-                    : "Atualizar status"}
-                </button>
+                {pedido.status === "Pendente" && (
+                  <button
+                    style={{
+                      marginTop: "6px",
+                      padding: "4px 10px",
+                      color: "#fff",
+                      background: "#7bc26f",
+                      border: "none",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      fontSize: 13,
+                    }}
+                    onClick={() => handleAceitarPedido(pedido.id)}
+                  >
+                    Aceitar pedido
+                  </button>
+                )}
+                {pedido.status === "Confirmado" && (
+                  <button
+                    style={{
+                      marginTop: "6px",
+                      padding: "4px 10px",
+                      color: "#fff",
+                      background: "#4caf50",
+                      border: "none",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      fontSize: 13,
+                    }}
+                    onClick={() => handleAceitarPedido(pedido.id)}
+                  >
+                    Iniciar coleta
+                  </button>
+                )}
               </Popup>
             </Marker>
           ))}
@@ -224,26 +284,44 @@ const Pedidos: React.FC = () => {
                   {statusIcons[pedido.status] || ""} {pedido.status}
                 </td>
                 <td>
-                  <button
-                    title="Aceitar / Atualizar"
-                    style={{
-                      marginRight: 8,
-                      padding: "4px 10px",
-                      borderRadius: 8,
-                      border: "none",
-                      cursor: "pointer",
-                      background:
-                        pedido.status === "Pendente" ? "#7bc26f" : "#4caf50",
-                      color: "#fff",
-                      fontSize: 13,
-                      fontWeight: 600,
-                    }}
-                    onClick={() => handleAceitarPedido(pedido.id)}
-                  >
-                    {pedido.status === "Pendente"
-                      ? "Aceitar"
-                      : "Atualizar"}
-                  </button>
+                  {pedido.status === "Pendente" && (
+                    <button
+                      title="Aceitar"
+                      style={{
+                        marginRight: 8,
+                        padding: "4px 10px",
+                        borderRadius: 8,
+                        border: "none",
+                        cursor: "pointer",
+                        background: "#7bc26f",
+                        color: "#fff",
+                        fontSize: 13,
+                        fontWeight: 600,
+                      }}
+                      onClick={() => handleAceitarPedido(pedido.id)}
+                    >
+                      Aceitar
+                    </button>
+                  )}
+                  {pedido.status === "Confirmado" && (
+                    <button
+                      title="Iniciar coleta"
+                      style={{
+                        marginRight: 8,
+                        padding: "4px 10px",
+                        borderRadius: 8,
+                        border: "none",
+                        cursor: "pointer",
+                        background: "#4caf50",
+                        color: "#fff",
+                        fontSize: 13,
+                        fontWeight: 600,
+                      }}
+                      onClick={() => handleAceitarPedido(pedido.id)}
+                    >
+                      Iniciar
+                    </button>
+                  )}
                   <button
                     title="Ver detalhes"
                     style={{ marginRight: 8 }}
@@ -263,7 +341,13 @@ const Pedidos: React.FC = () => {
           </tbody>
         </table>
         {pedidosFiltrados.length === 0 && (
-          <div style={{ padding: "2rem", textAlign: "center", color: "#aaa" }}>
+          <div
+            style={{
+              padding: "2rem",
+              textAlign: "center",
+              color: "#aaa",
+            }}
+          >
             Nenhum pedido encontrado.
           </div>
         )}
