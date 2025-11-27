@@ -12,7 +12,7 @@ interface Pedido {
   longitude: number;
 }
 
-const pedidosOriginais: Pedido[] = [
+const pedidosMock: Pedido[] = [
   {
     id: 1,
     nome: "Maria Silva",
@@ -31,20 +31,58 @@ const pedidosOriginais: Pedido[] = [
     latitude: -23.564224,
     longitude: -46.651436,
   },
+  {
+    id: 3,
+    nome: "Ana Lima",
+    endereco: "Rua Vergueiro, 780",
+    tipo: "Pedido de Coleta",
+    status: "Pendente",
+    latitude: -23.585,
+    longitude: -46.635,
+  },
+  {
+    id: 4,
+    nome: "Carlos Andrade",
+    endereco: "Rua Augusta, 450",
+    tipo: "Descarte",
+    status: "Pendente",
+    latitude: -23.553,
+    longitude: -46.658,
+  },
+  {
+    id: 5,
+    nome: "Fernanda Costa",
+    endereco: "Av. Brigadeiro Faria Lima, 2200",
+    tipo: "Pedido de Coleta",
+    status: "Em andamento",
+    latitude: -23.571,
+    longitude: -46.689,
+  },
 ];
 
 const statusIcons: Record<string, string> = {
   Pendente: "🟡",
   Confirmado: "🟢",
   "Em andamento": "🔵",
-  "Finalizado": "✅"
+  Finalizado: "✅",
 };
 
 const Pedidos: React.FC = () => {
+  const [pedidos, setPedidos] = useState<Pedido[]>(pedidosMock);
   const [filtroStatus, setFiltroStatus] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
 
-  const pedidosFiltrados = pedidosOriginais.filter(
+  const handleAceitarPedido = (id: number) => {
+    setPedidos(prev =>
+      prev.map(p =>
+        p.id === id
+          ? { ...p, status: p.status === "Pendente" ? "Confirmado" : "Em andamento" }
+          : p
+      )
+    );
+  };
+
+  const pedidosFiltrados = pedidos.filter(
     p =>
       (!filtroStatus || p.status === filtroStatus) &&
       (!filtroTipo || p.tipo === filtroTipo)
@@ -54,10 +92,17 @@ const Pedidos: React.FC = () => {
     <section className="pedidos-container">
       <h2 style={{ fontSize: "2.2rem", marginBottom: "1rem" }}>Pedidos de Coleta</h2>
 
-      <div className="filtros-area" style={{ marginBottom: "1.5rem", display: "flex", gap: "1rem" }}>
+      <div
+        className="filtros-area"
+        style={{ marginBottom: "1.5rem", display: "flex", gap: "1rem", flexWrap: "wrap" }}
+      >
         <label>
           <strong>Status:</strong>
-          <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)} style={{ marginLeft: 8 }}>
+          <select
+            value={filtroStatus}
+            onChange={e => setFiltroStatus(e.target.value)}
+            style={{ marginLeft: 8 }}
+          >
             <option value="">Todos</option>
             <option value="Pendente">Pendente</option>
             <option value="Confirmado">Confirmado</option>
@@ -67,15 +112,45 @@ const Pedidos: React.FC = () => {
         </label>
         <label>
           <strong>Tipo:</strong>
-          <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)} style={{ marginLeft: 8 }}>
+          <select
+            value={filtroTipo}
+            onChange={e => setFiltroTipo(e.target.value)}
+            style={{ marginLeft: 8 }}
+          >
             <option value="">Todos</option>
             <option value="Descarte">Descarte</option>
             <option value="Pedido de Coleta">Pedido de Coleta</option>
           </select>
         </label>
+        <button
+          onClick={() => {
+            setFiltroStatus("");
+            setFiltroTipo("");
+          }}
+          style={{
+            marginLeft: "auto",
+            padding: "6px 14px",
+            borderRadius: 8,
+            border: "none",
+            background: "#4caf50",
+            color: "#fff",
+            cursor: "pointer",
+            fontWeight: 600,
+          }}
+        >
+          Limpar filtros
+        </button>
       </div>
 
-      <div className="map-area" style={{ marginBottom: "2rem", borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 16px #0002" }}>
+      <div
+        className="map-area"
+        style={{
+          marginBottom: "2rem",
+          borderRadius: 12,
+          overflow: "hidden",
+          boxShadow: "0 4px 16px #0002",
+        }}
+      >
         <MapContainer
           center={[-23.563987, -46.654987]}
           zoom={12}
@@ -85,8 +160,11 @@ const Pedidos: React.FC = () => {
             attribution="© OpenStreetMap"
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          {pedidosFiltrados.map((pedido) => (
-            <Marker key={pedido.id} position={[pedido.latitude, pedido.longitude]}>
+          {pedidosFiltrados.map(pedido => (
+            <Marker
+              key={pedido.id}
+              position={[pedido.latitude, pedido.longitude]}
+            >
               <Popup>
                 <strong>{pedido.nome}</strong>
                 <br />
@@ -99,16 +177,20 @@ const Pedidos: React.FC = () => {
                 <button
                   style={{
                     marginTop: "6px",
-                    padding: "2px 8px",
+                    padding: "4px 10px",
                     color: "#fff",
-                    background: "#7bc26f",
+                    background:
+                      pedido.status === "Pendente" ? "#7bc26f" : "#4caf50",
                     border: "none",
                     borderRadius: "6px",
-                    cursor: "pointer"
+                    cursor: "pointer",
+                    fontSize: 13,
                   }}
-                  onClick={() => alert(`Detalhes do pedido de ${pedido.nome}`)}
+                  onClick={() => handleAceitarPedido(pedido.id)}
                 >
-                  Ver detalhes
+                  {pedido.status === "Pendente"
+                    ? "Aceitar pedido"
+                    : "Atualizar status"}
                 </button>
               </Popup>
             </Marker>
@@ -130,7 +212,10 @@ const Pedidos: React.FC = () => {
           </thead>
           <tbody>
             {pedidosFiltrados.map((pedido, idx) => (
-              <tr key={pedido.id} style={{ background: idx % 2 === 0 ? "#eefae7" : "#fff" }}>
+              <tr
+                key={pedido.id}
+                style={{ background: idx % 2 === 0 ? "#eefae7" : "#fff" }}
+              >
                 <td>{pedido.id}</td>
                 <td>{pedido.nome}</td>
                 <td>{pedido.endereco}</td>
@@ -139,8 +224,39 @@ const Pedidos: React.FC = () => {
                   {statusIcons[pedido.status] || ""} {pedido.status}
                 </td>
                 <td>
-                  <button title="Ver detalhes" style={{ marginRight: 8 }} onClick={() => alert(`Ver pedido ${pedido.id}`)}>🔍</button>
-                  <button title="Excluir pedido" onClick={() => alert(`Excluir pedido ${pedido.id}`)}>🗑️</button>
+                  <button
+                    title="Aceitar / Atualizar"
+                    style={{
+                      marginRight: 8,
+                      padding: "4px 10px",
+                      borderRadius: 8,
+                      border: "none",
+                      cursor: "pointer",
+                      background:
+                        pedido.status === "Pendente" ? "#7bc26f" : "#4caf50",
+                      color: "#fff",
+                      fontSize: 13,
+                      fontWeight: 600,
+                    }}
+                    onClick={() => handleAceitarPedido(pedido.id)}
+                  >
+                    {pedido.status === "Pendente"
+                      ? "Aceitar"
+                      : "Atualizar"}
+                  </button>
+                  <button
+                    title="Ver detalhes"
+                    style={{ marginRight: 8 }}
+                    onClick={() => alert(`Ver pedido ${pedido.id}`)}
+                  >
+                    🔍
+                  </button>
+                  <button
+                    title="Excluir pedido"
+                    onClick={() => alert(`Excluir pedido ${pedido.id}`)}
+                  >
+                    🗑️
+                  </button>
                 </td>
               </tr>
             ))}
