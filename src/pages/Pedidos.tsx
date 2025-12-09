@@ -1,7 +1,7 @@
 // src/pages/Pedidos.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import { FaClock, FaSyncAlt } from "react-icons/fa";
+import { FaClock, FaSyncAlt, FaMapMarkerAlt } from "react-icons/fa";
 import "leaflet/dist/leaflet.css";
 
 const API_BASE_URL = "http://localhost:3000/api/v1";
@@ -72,7 +72,6 @@ const LINE_LABEL: Record<MaterialLine, string> = {
   BRANCA: "Linha Branca",
 };
 
-// filtros de alto nível
 type HighFilter = "all" | "pending" | "accepted" | "received";
 
 const Pedidos: React.FC = () => {
@@ -121,8 +120,6 @@ const Pedidos: React.FC = () => {
         return;
       }
 
-      // se existir rota geral, ideal seria /discards/collectors/:id/all
-      // por enquanto usa os pendentes de PICKUP; backend pode ser expandido depois
       const res = await fetch(
         `${API_BASE_URL}/discards/collectors/${collectorId}/pending-pickup`,
         {
@@ -136,8 +133,7 @@ const Pedidos: React.FC = () => {
       const data = await res.json().catch(() => ([] as Discard[]));
       if (!res.ok) {
         throw new Error(
-          (data as any)?.message ||
-            "Erro ao carregar pedidos de coleta do coletor."
+          (data as any)?.message || "Erro ao carregar pedidos de coleta do coletor."
         );
       }
 
@@ -145,7 +141,6 @@ const Pedidos: React.FC = () => {
       if (Array.isArray(data)) list = data;
       else if (Array.isArray((data as any).discards)) list = (data as any).discards;
 
-      // defensivo: normaliza linhas e datas
       setDiscards(
         (list || []).map(d => ({
           ...d,
@@ -168,7 +163,6 @@ const Pedidos: React.FC = () => {
 
   const filteredDiscards = useMemo(() => {
     return discards.filter(d => {
-      // filtro alto nível
       if (highFilter === "pending" && d.status !== "PENDING") return false;
       if (
         highFilter === "accepted" &&
@@ -177,7 +171,6 @@ const Pedidos: React.FC = () => {
         return false;
       if (highFilter === "received" && d.status !== "COMPLETED") return false;
 
-      // filtros detalhados
       if (statusFilter && d.status !== statusFilter) return false;
       if (modeFilter && d.mode !== modeFilter) return false;
       return true;
@@ -193,8 +186,8 @@ const Pedidos: React.FC = () => {
             <div>
               <h1>Pedidos de Coleta</h1>
               <p>
-                Visualize no mapa todos os descartes dos clientes e filtre por
-                pendentes, aceitos e recebidos.
+                Visualize em tempo real os pedidos no mapa e acompanhe os
+                detalhes na listagem ao lado.
               </p>
             </div>
             <button
@@ -210,9 +203,7 @@ const Pedidos: React.FC = () => {
           <section className="pedidos-filters">
             <div className="high-filter-group">
               <button
-                className={`high-filter-btn ${
-                  highFilter === "all" ? "active" : ""
-                }`}
+                className={`high-filter-btn ${highFilter === "all" ? "active" : ""}`}
                 onClick={() => setHighFilter("all")}
               >
                 Todos
@@ -287,7 +278,7 @@ const Pedidos: React.FC = () => {
               <MapContainer
                 center={center}
                 zoom={12}
-                scrollWheelZoom={false}
+                scrollWheelZoom={true}
                 style={{ height: "100%", width: "100%" }}
               >
                 <TileLayer
@@ -301,8 +292,7 @@ const Pedidos: React.FC = () => {
                   return (
                     <Marker key={discard.id} position={[lat, lng]}>
                       <Popup>
-                        <strong>#{discard.id}</strong> –{" "}
-                        {MODE_LABEL[discard.mode]}
+                        <strong>#{discard.id}</strong> – {MODE_LABEL[discard.mode]}
                         <br />
                         {shortAddress}
                         <br />
@@ -330,55 +320,63 @@ const Pedidos: React.FC = () => {
                   Nenhum pedido encontrado para os filtros atuais.
                 </div>
               ) : (
-                <table className="pedidos-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Cliente</th>
-                      <th>Materiais</th>
-                      <th>Tipo</th>
-                      <th>Endereço</th>
-                      <th>Status</th>
-                      <th>Criado em</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredDiscards.map(discard => (
-                      <tr key={discard.id}>
-                        <td>#{discard.id}</td>
-                        <td>
-                          <div className="cell-main">
-                            <span>{discard.client?.name || "Cliente"}</span>
-                            {discard.client?.phone && (
-                              <small>{discard.client.phone}</small>
-                            )}
+                <div className="pedidos-cards">
+                  {filteredDiscards.map(discard => {
+                    const shortAddress = getShortAddress(discard);
+                    return (
+                      <article key={discard.id} className="pedido-card">
+                        <header className="pedido-card-header">
+                          <div>
+                            <span className="pedido-id">#{discard.id}</span>
+                            <span className="pedido-client">
+                              {discard.client?.name || "Cliente"}
+                            </span>
                           </div>
-                        </td>
-                        <td>
-                          <div className="lines-chip-row">
-                            {discard.lines.map(line => (
-                              <span key={line} className="line-chip">
-                                {LINE_LABEL[line]}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
-                        <td>{MODE_LABEL[discard.mode]}</td>
-                        <td>{getShortAddress(discard)}</td>
-                        <td>
                           <span className={STATUS_BADGE_CLASS[discard.status]}>
                             {STATUS_LABEL[discard.status]}
                           </span>
-                        </td>
-                        <td>
+                        </header>
+
+                        <div className="pedido-card-body">
+                          <div className="pedido-row">
+                            <strong>Tipo:</strong> {MODE_LABEL[discard.mode]}
+                          </div>
+                          <div className="pedido-row">
+                            <strong>Materiais:</strong>
+                            <div className="lines-chip-row">
+                              {discard.lines.map(line => (
+                                <span key={line} className="line-chip">
+                                  {LINE_LABEL[line]}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="pedido-row address-row">
+                            <FaMapMarkerAlt />
+                            <span>{shortAddress}</span>
+                          </div>
+                          {discard.description && (
+                            <div className="pedido-row descricao-row">
+                              <strong>Descrição:</strong>
+                              <span>{truncate(discard.description, 120)}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <footer className="pedido-card-footer">
                           <span className="created-at">
                             <FaClock /> {formatDate(discard.createdAt)}
                           </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          {discard.client?.phone && (
+                            <span className="pedido-phone">
+                              {discard.client.phone}
+                            </span>
+                          )}
+                        </footer>
+                      </article>
+                    );
+                  })}
+                </div>
               )}
             </div>
           </section>
@@ -576,8 +574,8 @@ const pedidosStyles = `
 
 .pedidos-main {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.8fr);
-  gap: 16px;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.5fr);
+  gap: 20px;
   margin-top: 4px;
 }
 
@@ -588,17 +586,17 @@ const pedidosStyles = `
 }
 
 .pedidos-map-wrapper {
-  min-height: 260px;
-  border-radius: 14px;
+  min-height: 380px;
+  border-radius: 16px;
   overflow: hidden;
   border: 1px solid rgba(124,194,111,0.2);
 }
 
 .pedidos-list-wrapper {
   background: #151915;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 1px solid rgba(124,194,111,0.12);
-  padding: 10px 12px;
+  padding: 12px 12px 10px;
   box-sizing: border-box;
 }
 
@@ -609,39 +607,84 @@ const pedidosStyles = `
   font-size: 0.9rem;
 }
 
-.pedidos-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.86rem;
-}
-.pedidos-table thead tr {
-  background: #171c17;
-}
-.pedidos-table th,
-.pedidos-table td {
-  padding: 8px 6px;
-  text-align: left;
-}
-.pedidos-table th {
-  color: #8ea88a;
-  font-weight: 600;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-.pedidos-table td {
-  color: #f5fff3;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
-}
-.pedidos-table tbody tr:hover {
-  background: #111811;
-}
-
-.cell-main {
+.pedidos-cards {
   display: flex;
   flex-direction: column;
+  gap: 10px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
-.cell-main small {
-  color: #8ea88a;
+
+.pedido-card {
+  background: #111711;
+  border-radius: 12px;
+  border: 1px solid rgba(124,194,111,0.18);
+  padding: 8px 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pedido-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pedido-id {
+  display: block;
   font-size: 0.78rem;
+  color: #8ea88a;
+}
+
+.pedido-client {
+  display: block;
+  font-size: 0.95rem;
+  color: #f5fff3;
+  font-weight: 600;
+}
+
+.pedido-card-body {
+  font-size: 0.86rem;
+  color: #dbead6;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pedido-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.address-row {
+  margin-top: 2px;
+}
+.address-row svg {
+  font-size: 0.78rem;
+  color: #7bc26f;
+}
+.address-row span {
+  flex: 1;
+}
+
+.descricao-row span {
+  flex: 1;
+}
+
+.pedido-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.pedido-phone {
+  font-size: 0.8rem;
+  color: #c5f2b9;
 }
 
 .lines-chip-row {
@@ -695,6 +738,7 @@ const pedidosStyles = `
   align-items: center;
   gap: 4px;
   color: #a4b8a1;
+  font-size: 0.8rem;
 }
 .created-at svg {
   font-size: 0.78rem;
