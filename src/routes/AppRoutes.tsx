@@ -8,7 +8,7 @@ import Faturamento from "../pages/Faturamento";
 import Pedidos from "../pages/Pedidos";
 import Dashboard from "../pages/Dashboard";
 import Perfil from "../pages/Perfil";
-import ProtectedRoutes from "./ProtectedRoutes"; // 1. Import
+import ProtectedRoutes from "./ProtectedRoutes"; 
 
 const AppRoutes: React.FC = () => (
   <Routes>
