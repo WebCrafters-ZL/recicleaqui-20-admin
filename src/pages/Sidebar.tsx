@@ -32,13 +32,6 @@ const Sidebar: React.FC = () => {
           <span>Dashboard</span>
         </button>
         <button
-          className={`nav-button ${isActive("/homeusuario/faturamento") ? "active" : ""}`}
-          onClick={() => navigate("/homeusuario/faturamento")}
-        >
-          <FaFileInvoiceDollar className="nav-icon" />
-          <span>Faturamento</span>
-        </button>
-        <button
           className={`nav-button ${isActive("/homeusuario/historico") ? "active" : ""}`}
           onClick={() => navigate("/homeusuario/historico")}
         >

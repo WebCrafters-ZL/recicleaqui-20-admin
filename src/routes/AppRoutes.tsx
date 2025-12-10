@@ -4,7 +4,6 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import HomeUsuario from "../pages/HomeUsuario";
 import Historico from "../pages/Historico";
-import Faturamento from "../pages/Faturamento";
 import Pedidos from "../pages/Pedidos";
 import Dashboard from "../pages/Dashboard";
 import Perfil from "../pages/Perfil";
@@ -21,7 +20,6 @@ const AppRoutes: React.FC = () => (
       <Route path="/homeusuario" element={<HomeUsuario />}>
         <Route index element={<Dashboard />} />
         <Route path="historico" element={<Historico />} />
-        <Route path="faturamento" element={<Faturamento />} />
         <Route path="pedidos" element={<Pedidos />} />
         <Route path="perfil" element={<Perfil />} />
       </Route>
