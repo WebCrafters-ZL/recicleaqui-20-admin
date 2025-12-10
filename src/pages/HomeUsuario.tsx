@@ -4,7 +4,6 @@ import { Outlet, useLocation } from "react-router-dom";
 import "../styles/HomeUsuario.css";
 
 const getActiveSection = (pathname: string): string => {
-  if (pathname.includes("/faturamento")) return "faturamento";
   if (pathname.includes("/historico")) return "historico";
   if (pathname.includes("/pedidos")) return "pedidos";
   return "dashboard";

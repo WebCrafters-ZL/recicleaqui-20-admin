@@ -43,7 +43,7 @@ const Perfil: React.FC = () => {
           return;
         }
 
-        const res = await fetch(`${API_BASE_URL}/collectors/${collectorId}`, {
+        const res = await fetch(`${API_BASE_URL}/collectors/me`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
