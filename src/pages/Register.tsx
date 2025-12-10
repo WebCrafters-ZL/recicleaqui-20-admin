@@ -15,7 +15,7 @@ function verificarSenha(senha: string): { forca: ForcaSenha; regras: any } {
     maiuscula: /[A-Z]/.test(senha),
     minuscula: /[a-z]/.test(senha),
     numero: /\d/.test(senha),
-    especial: /[!@#$%^&*(),.?\":{}|<>]/.test(senha),
+    especial: /[!@#$%^&*(),.?":{}|<>]/.test(senha),
   };
   const total = Object.values(regras).filter(Boolean).length;
   let forca: ForcaSenha = "fraca";
@@ -82,11 +82,18 @@ const formatCNPJ = (value: string) => {
     .slice(0, 18);
 };
 
+const normalizeCEP = (value: string) => value.replace(/\D/g, "").slice(0, 8);
+
 const Register: React.FC = () => {
   const [form, setForm] = useState({
     cnpj: "",
     nome: "",
-    endereco: "",
+    addressName: "",
+    number: "",
+    neighborhood: "",
+    postalCode: "",
+    city: "",
+    state: "",
     email: "",
     telefone: "",
     senha: "",
@@ -94,6 +101,7 @@ const Register: React.FC = () => {
   });
   const [error, setError] = useState("");
   const [loadingCNPJ, setLoadingCNPJ] = useState(false);
+  const [loadingCEP, setLoadingCEP] = useState(false);
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarSenhaConfirmar, setMostrarSenhaConfirmar] = useState(false);
   const [mostrarRegras, setMostrarRegras] = useState(false);
@@ -101,13 +109,28 @@ const Register: React.FC = () => {
   const blurTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
 
-  const { cnpj, nome, endereco, email, telefone, senha, confirmar } = form;
+  const {
+    cnpj,
+    nome,
+    addressName,
+    number,
+    neighborhood,
+    postalCode,
+    city,
+    state,
+    email,
+    telefone,
+    senha,
+    confirmar,
+  } = form;
   const { forca, regras } = verificarSenha(senha);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name === "cnpj") {
       setForm(prev => ({ ...prev, cnpj: formatCNPJ(value) }));
+    } else if (name === "postalCode") {
+      setForm(prev => ({ ...prev, postalCode: normalizeCEP(value) }));
     } else {
       setForm(prev => ({ ...prev, [name]: value }));
     }
@@ -132,13 +155,16 @@ const Register: React.FC = () => {
         setError("CNPJ não encontrado.");
       } else {
         const est = data.estabelecimento || {};
-        const enderecoCompleto = `${est.logradouro || ""}, ${est.numero || ""}, ${
-          est.bairro || ""
-        }, ${est.cidade?.nome || ""} - ${est.estado?.sigla || ""}`;
+        const cepLimpo = normalizeCEP(est.cep || "");
         setForm(prev => ({
           ...prev,
           nome: data.razao_social || prev.nome,
-          endereco: enderecoCompleto.replace(/(, )+$/g, "").trim(),
+          addressName: est.logradouro || prev.addressName,
+          number: (est.numero || prev.number || "").toString(),
+          neighborhood: est.bairro || prev.neighborhood,
+          postalCode: cepLimpo || prev.postalCode,
+          city: est.cidade?.nome || prev.city,
+          state: est.estado?.sigla || prev.state,
         }));
       }
     } catch {
@@ -162,12 +188,62 @@ const Register: React.FC = () => {
     }, 300);
   };
 
+  const handleCepLookup = async () => {
+    const cepLimpo = normalizeCEP(postalCode);
+    if (!cepLimpo || cepLimpo.length !== 8) {
+      setError("Informe um CEP válido com 8 dígitos.");
+      return;
+    }
+
+    setLoadingCEP(true);
+    try {
+      const res = await fetch(`https://brasilapi.com.br/api/cep/v1/${cepLimpo}`);
+      if (!res.ok) {
+        throw new Error("CEP não encontrado");
+      }
+      const data = await res.json();
+
+      setForm(prev => ({
+        ...prev,
+        postalCode: cepLimpo,
+        addressName: data.street || prev.addressName,
+        neighborhood: data.neighborhood || prev.neighborhood,
+        city: data.city || prev.city,
+        state: data.state || prev.state,
+      }));
+      setError("");
+    } catch (err) {
+      console.error("Erro ao buscar CEP BrasilAPI:", err);
+      setError("CEP não encontrado na BrasilAPI.");
+    } finally {
+      setLoadingCEP(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (!cnpj || !nome || !endereco || !email || !telefone || !senha || !confirmar) {
+    if (
+      !cnpj ||
+      !nome ||
+      !addressName ||
+      !number ||
+      !neighborhood ||
+      !postalCode ||
+      !city ||
+      !state ||
+      !email ||
+      !telefone ||
+      !senha ||
+      !confirmar
+    ) {
       setError("Preencha todos os campos");
+      return;
+    }
+    const cepLimpo = normalizeCEP(postalCode);
+    if (cepLimpo.length !== 8) {
+      setError("CEP deve ter 8 dígitos");
       return;
     }
     if (senha !== confirmar) {
@@ -183,19 +259,23 @@ const Register: React.FC = () => {
       setLoading(true);
       const rawCNPJ = cnpj.replace(/\D/g, "");
 
+      const enderecoBase = {
+        addressName: addressName.trim(),
+        number: number.trim(),
+        additionalInfo: "",
+        neighborhood: neighborhood.trim(),
+        postalCode: cepLimpo,
+        city: city.trim(),
+        state: state.trim(),
+        latitude: null as number | null,
+        longitude: null as number | null,
+      };
+
       // ponto de coleta padrão baseado na sede
       const defaultPoint = {
         name: `${nome.trim()} - Sede`,
         description: "Ponto de coleta principal cadastrado automaticamente.",
-        addressName: endereco.trim(),
-        number: "0",
-        additionalInfo: "",
-        neighborhood: "",
-        postalCode: "",
-        city: "",
-        state: "",
-        latitude: null as number | null,
-        longitude: null as number | null,
+        ...enderecoBase,
         operatingHours: "",
         acceptedLines: [] as string[],
         isActive: true,
@@ -215,17 +295,7 @@ const Register: React.FC = () => {
         email: email.trim(),
         password: senha,
 
-        headquarters: {
-          addressName: endereco.trim(),
-          number: "0",
-          additionalInfo: "",
-          neighborhood: "",
-          postalCode: "",
-          city: "",
-          state: "",
-          latitude: null as number | null,
-          longitude: null as number | null,
-        },
+        headquarters: enderecoBase,
 
         // garante pelo menos um ponto de coleta para não quebrar a validação
         collectionPoints: [defaultPoint],
@@ -306,17 +376,6 @@ const Register: React.FC = () => {
               disabled={loading}
             />
             <input
-              name="endereco"
-              type="text"
-              placeholder="Endereço da sede"
-              value={endereco}
-              onChange={handleChange}
-              autoComplete="off"
-              required
-              style={{ backgroundColor: "#eafbe2" }}
-              disabled={loading}
-            />
-            <input
               name="telefone"
               type="text"
               placeholder="Telefone"
@@ -326,6 +385,98 @@ const Register: React.FC = () => {
               required
               disabled={loading}
             />
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <input
+                name="postalCode"
+                type="text"
+                placeholder="CEP"
+                value={postalCode}
+                onChange={handleChange}
+                onBlur={handleCepLookup}
+                autoComplete="off"
+                required
+                maxLength={8}
+                style={{ flex: 1, backgroundColor: "#eafbe2" }}
+                disabled={loading}
+              />
+              <button
+                type="button"
+                onClick={handleCepLookup}
+                disabled={loading || loadingCEP}
+                style={{
+                  padding: "10px 12px",
+                  background: "#7bc26f",
+                  color: "#0d0f0d",
+                  border: "none",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  fontWeight: 700,
+                  minWidth: 120,
+                }}
+              >
+                {loadingCEP ? "Buscando..." : "Buscar CEP"}
+              </button>
+            </div>
+            <input
+              name="addressName"
+              type="text"
+              placeholder="Logradouro"
+              value={addressName}
+              onChange={handleChange}
+              autoComplete="off"
+              required
+              style={{ backgroundColor: "#eafbe2" }}
+              disabled={loading}
+            />
+            <div style={{ display: "flex", gap: 8 }}>
+              <input
+                name="number"
+                type="text"
+                placeholder="Número"
+                value={number}
+                onChange={handleChange}
+                autoComplete="off"
+                required
+                style={{ backgroundColor: "#eafbe2" }}
+                disabled={loading}
+              />
+              <input
+                name="neighborhood"
+                type="text"
+                placeholder="Bairro"
+                value={neighborhood}
+                onChange={handleChange}
+                autoComplete="off"
+                required
+                style={{ backgroundColor: "#eafbe2" }}
+                disabled={loading}
+              />
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <input
+                name="city"
+                type="text"
+                placeholder="Cidade"
+                value={city}
+                onChange={handleChange}
+                autoComplete="off"
+                required
+                style={{ backgroundColor: "#eafbe2" }}
+                disabled={loading}
+              />
+              <input
+                name="state"
+                type="text"
+                placeholder="Estado"
+                value={state}
+                onChange={handleChange}
+                autoComplete="off"
+                required
+                maxLength={2}
+                style={{ backgroundColor: "#eafbe2" }}
+                disabled={loading}
+              />
+            </div>
             <input
               name="email"
               type="email"

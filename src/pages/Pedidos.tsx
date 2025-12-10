@@ -121,7 +121,7 @@ const Pedidos: React.FC = () => {
       }
 
       const res = await fetch(
-        `${API_BASE_URL}/discards/collectors/${collectorId}/pending-pickup`,
+        `${API_BASE_URL}/discards/nearby/${collectorId}`,
         {
           headers: {
             "Content-Type": "application/json",
