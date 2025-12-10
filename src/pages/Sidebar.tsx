@@ -5,8 +5,8 @@ import {
   FaFileInvoiceDollar, 
   FaHistory, 
   FaClipboardList,
-  FaUserCircle, // Ícone para Perfil
-  FaSignOutAlt  // Ícone para Sair
+  FaUserCircle, 
+  FaSignOutAlt  
 } from "react-icons/fa";
 import "../styles/Sidebar.css";
 import logo from "../assets/logo.png"; 
