@@ -4,13 +4,44 @@ import { FaUserCircle, FaEdit, FaPhoneAlt, FaBuilding } from "react-icons/fa";
 
 const API_BASE_URL = "http://localhost:3000/api/v1";
 
+type AddressFields = {
+  addressName: string;
+  number: string;
+  neighborhood: string;
+  postalCode: string;
+  city: string;
+  state: string;
+  latitude: number | null;
+  longitude: number | null;
+};
+
 type CollectorProfile = {
   id: number;
   name: string;
   email: string;
   cnpj?: string;
-  address?: string;
   phone?: string;
+} & AddressFields;
+
+const normalizeCEP = (value: string) => value.replace(/\D/g, "").slice(0, 8);
+const formatCEP = (cep: string) => {
+  const clean = normalizeCEP(cep);
+  return clean.length === 8 ? `${clean.slice(0, 5)}-${clean.slice(5)}` : clean;
+};
+const parseCoordinate = (value: string | number | null | undefined) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const formatAddressSummary = (profile: CollectorProfile) => {
+  const parts = [
+    profile.addressName,
+    profile.number ? `Nº ${profile.number}` : "",
+    profile.neighborhood,
+    profile.city && profile.state ? `${profile.city} - ${profile.state}` : profile.city,
+  ].filter(Boolean);
+
+  return parts.join(", ");
 };
 
 const Perfil: React.FC = () => {
@@ -19,6 +50,7 @@ const Perfil: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [loadingCEP, setLoadingCEP] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [error, setError] = useState("");
 
@@ -56,13 +88,21 @@ const Perfil: React.FC = () => {
         }
 
         const data = await res.json();
+        const headquarters = data.headquarters || {};
         const profile: CollectorProfile = {
           id: data.id,
           name: data.name || data.companyName || data.tradeName || data.nome,
           email: data.email,
           cnpj: data.cnpj,
-          address: data.address || data.endereco || data.headquarters?.addressName,
           phone: data.phone || data.telefone,
+          addressName: headquarters.addressName || data.address || "",
+          number: (headquarters.number || "").toString(),
+          neighborhood: headquarters.neighborhood || "",
+          postalCode: normalizeCEP(headquarters.postalCode || data.postalCode || ""),
+          city: headquarters.city || "",
+          state: headquarters.state || "",
+          latitude: parseCoordinate(headquarters.latitude),
+          longitude: parseCoordinate(headquarters.longitude),
         };
 
         setUserData(profile);
@@ -79,7 +119,48 @@ const Perfil: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setForm(prev => (prev ? { ...prev, [name]: value } : prev));
+    setForm(prev => {
+      if (!prev) return prev;
+      if (name === "postalCode") {
+        return { ...prev, postalCode: normalizeCEP(value) };
+      }
+      return { ...prev, [name]: value };
+    });
+    setError("");
+  };
+
+  const handleCepLookup = async () => {
+    if (!form) return;
+    const cepLimpo = normalizeCEP(form.postalCode);
+    if (!cepLimpo || cepLimpo.length !== 8) {
+      setError("Informe um CEP válido com 8 dígitos.");
+      return;
+    }
+
+    setLoadingCEP(true);
+    try {
+      const res = await fetch(`https://brasilapi.com.br/api/cep/v1/${cepLimpo}`);
+      if (!res.ok) throw new Error("CEP não encontrado");
+      const data = await res.json();
+
+      setForm(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          postalCode: cepLimpo,
+          addressName: data.street || prev.addressName,
+          neighborhood: data.neighborhood || prev.neighborhood,
+          city: data.city || prev.city,
+          state: data.state || prev.state,
+        };
+      });
+      setError("");
+    } catch (err) {
+      console.error("Erro ao buscar CEP BrasilAPI:", err);
+      setError("CEP não encontrado na BrasilAPI.");
+    } finally {
+      setLoadingCEP(false);
+    }
   };
 
   const handleSave = async () => {
@@ -89,6 +170,25 @@ const Perfil: React.FC = () => {
     setError("");
     setSuccessMsg("");
 
+    const cepLimpo = normalizeCEP(form.postalCode);
+    if (
+      !form.addressName ||
+      !form.number ||
+      !form.neighborhood ||
+      !form.postalCode ||
+      !form.city ||
+      !form.state
+    ) {
+      setError("Preencha todos os campos de endereço.");
+      setSaving(false);
+      return;
+    }
+    if (!cepLimpo || cepLimpo.length !== 8) {
+      setError("CEP deve ter 8 dígitos.");
+      setSaving(false);
+      return;
+    }
+
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -97,12 +197,21 @@ const Perfil: React.FC = () => {
         return;
       }
 
+      const headquarters = {
+        addressName: form.addressName,
+        number: form.number,
+        neighborhood: form.neighborhood,
+        postalCode: cepLimpo,
+        city: form.city,
+        state: form.state,
+      };
+
       const body = {
         name: form.name,
         email: form.email,
         cnpj: form.cnpj,
-        address: form.address,
         phone: form.phone,
+        headquarters,
       };
 
       const res = await fetch(`${API_BASE_URL}/collectors/${form.id}`, {
@@ -119,13 +228,21 @@ const Perfil: React.FC = () => {
         throw new Error(data.message || "Erro ao atualizar perfil.");
       }
 
+      const updatedHeadquarters = data.headquarters || headquarters;
       const updated: CollectorProfile = {
         id: data.id || form.id,
         name: data.name || form.name,
         email: data.email || form.email,
         cnpj: data.cnpj ?? form.cnpj,
-        address: data.address || data.endereco || form.address,
         phone: data.phone || data.telefone || form.phone,
+        addressName: updatedHeadquarters?.addressName || form.addressName,
+        number: (updatedHeadquarters?.number || form.number || "").toString(),
+        neighborhood: updatedHeadquarters?.neighborhood || form.neighborhood,
+        postalCode: normalizeCEP(updatedHeadquarters?.postalCode || form.postalCode || ""),
+        city: updatedHeadquarters?.city || form.city,
+        state: updatedHeadquarters?.state || form.state,
+        latitude: parseCoordinate(updatedHeadquarters?.latitude ?? form.latitude),
+        longitude: parseCoordinate(updatedHeadquarters?.longitude ?? form.longitude),
       };
 
       setUserData(updated);
@@ -247,19 +364,97 @@ const Perfil: React.FC = () => {
                   </div>
                 </div>
 
+                <div className="perfil-field">
+                  <label>CEP</label>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <input
+                      name="postalCode"
+                      type="text"
+                      value={form.postalCode || ""}
+                      onChange={handleChange}
+                      onBlur={handleCepLookup}
+                      disabled={!editMode}
+                      maxLength={8}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleCepLookup}
+                      disabled={!editMode || loadingCEP}
+                      style={{
+                        padding: "8px 12px",
+                        background: "#7bc26f",
+                        color: "#0d0f0d",
+                        border: "none",
+                        borderRadius: 8,
+                        cursor: editMode ? "pointer" : "not-allowed",
+                        fontWeight: 700,
+                        minWidth: 110,
+                      }}
+                    >
+                      {loadingCEP ? "Buscando..." : "Buscar CEP"}
+                    </button>
+                  </div>
+                </div>
+
                 <div className="perfil-field perfil-field-full">
-                  <label>Endereço da sede</label>
+                  <label>Logradouro</label>
                   <div className="perfil-input-icon">
                     <FaBuilding />
                     <input
-                      name="address"
+                      name="addressName"
                       type="text"
-                      value={form.address || ""}
+                      value={form.addressName || ""}
                       onChange={handleChange}
                       disabled={!editMode}
                     />
                   </div>
                 </div>
+
+                <div className="perfil-field">
+                  <label>Número</label>
+                  <input
+                    name="number"
+                    type="text"
+                    value={form.number || ""}
+                    onChange={handleChange}
+                    disabled={!editMode}
+                  />
+                </div>
+
+                <div className="perfil-field">
+                  <label>Bairro</label>
+                  <input
+                    name="neighborhood"
+                    type="text"
+                    value={form.neighborhood || ""}
+                    onChange={handleChange}
+                    disabled={!editMode}
+                  />
+                </div>
+
+                <div className="perfil-field">
+                  <label>Cidade</label>
+                  <input
+                    name="city"
+                    type="text"
+                    value={form.city || ""}
+                    onChange={handleChange}
+                    disabled={!editMode}
+                  />
+                </div>
+
+                <div className="perfil-field">
+                  <label>Estado</label>
+                  <input
+                    name="state"
+                    type="text"
+                    value={form.state || ""}
+                    onChange={handleChange}
+                    disabled={!editMode}
+                    maxLength={2}
+                  />
+                </div>
+
               </div>
             </section>
 
@@ -275,8 +470,12 @@ const Perfil: React.FC = () => {
                   <strong>{userData.phone || "—"}</strong>
                 </div>
                 <div className="perfil-summary-row">
+                  <span>CEP</span>
+                  <strong>{userData.postalCode ? formatCEP(userData.postalCode) : "—"}</strong>
+                </div>
+                <div className="perfil-summary-row">
                   <span>Endereço</span>
-                  <strong>{userData.address || "—"}</strong>
+                  <strong>{formatAddressSummary(userData) || "—"}</strong>
                 </div>
                 <p className="perfil-summary-hint">
                   Essas informações são usadas pelos clientes para encontrar a
